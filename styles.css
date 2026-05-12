@@ -698,12 +698,6 @@ dd {
   margin: 12px 0;
 }
 
-.match-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
-
 .server-list {
   border: 1px solid;
   border-color: #292c21 #8c9284 #8c9284 #292c21;

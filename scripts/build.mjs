@@ -356,9 +356,6 @@ function renderProfile({ route = routes.profile } = {}) {
                 </div>
                 ${missions}
               </div>
-              <div class="match-actions">
-                <a class="cs-btn" href="${site.linkedIn}" target="_blank" rel="noopener noreferrer">Request resume</a>
-              </div>
             </div>
 
             <input class="radiotab" tabindex="1" name="tabs" type="radio" id="tab-servers" />
@@ -378,6 +375,7 @@ function renderProfile({ route = routes.profile } = {}) {
         </div>
 
         <footer class="cs-window-footer">
+          <a class="cs-btn" href="${site.linkedIn}" target="_blank" rel="noopener noreferrer">Request resume</a>
           <a class="cs-btn" href="${pageHref(route, routes.blog)}">Open blog</a>
         </footer>
       </section>`;
