@@ -13,6 +13,8 @@ To add a blog post:
 2. Add a matching entry to the `posts` array in `src/site-data.mjs`
 3. Run `npm run build`
 
+Post URLs use the post slug, e.g. `src/posts/my-post.html` -> `/blog/my-post/`
+
 ## Local Preview
 Run static site generator with npm build
 

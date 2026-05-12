@@ -25,10 +25,17 @@ function externalAttrs(href) {
     : "";
 }
 
-function navHref(item, prefix) {
+function localHref(href, prefix = "") {
+  if (href.startsWith("http") || href.startsWith("/")) return href;
+  return `${prefix}${href}`;
+}
+
+function navHref(item, prefix, current = "") {
   if (item === "home") return prefix ? prefix : "./";
-  if (item === "profile") return `${prefix}profile.html`;
-  if (item === "blog") return prefix ? "./" : "blog/";
+  if (item === "blog" && current === "blog") return prefix === "../../" ? "../" : "./";
+  if (item === "profile" && current === "profile" && prefix) return "./";
+  if (item === "profile") return `${prefix}profile/`;
+  if (item === "blog") return `${prefix}blog/`;
   return item;
 }
 
@@ -68,13 +75,13 @@ function header({ current, prefix = "", variant = "site-header" }) {
     .map(([href, label]) => {
       const itemKey = href === "home" || href === "profile" || href === "blog" ? href : "";
       const currentAttr = itemKey === current ? ' aria-current="page"' : "";
-      const resolvedHref = itemKey ? navHref(itemKey, prefix) : href;
+      const resolvedHref = itemKey ? navHref(itemKey, prefix, current) : href;
       return `<a href="${resolvedHref}"${currentAttr}${externalAttrs(resolvedHref)}>${label}</a>`;
     })
     .join("\n          ");
 
   return `<header class="${variant}">
-        <a class="brand" href="${navHref("home", prefix)}" aria-label="${site.author} home">
+        <a class="brand" href="${navHref("home", prefix, current)}" aria-label="${site.author} home">
           <img src="${prefix}assets/mark.svg" alt="" width="36" height="36" />
           <span>${site.author}</span>
         </a>
@@ -181,7 +188,7 @@ function renderHome() {
         <article class="post-row">
           <time datetime="${latestPost.date}">${latestPost.displayDate}</time>
           <div>
-            <h3><a href="blog/${latestPost.slug}.html">${latestPost.title}</a></h3>
+            <h3><a href="blog/${latestPost.slug}/">${latestPost.title}</a></h3>
             <p>${latestPost.homeExcerpt ?? latestPost.excerpt}</p>
           </div>
         </article>
@@ -205,7 +212,7 @@ function renderBlogIndex() {
       (post) => `<article class="post-row">
           <time datetime="${post.date}">${post.displayDate}</time>
           <div>
-            <h2><a href="${post.slug}.html">${post.title}</a></h2>
+            <h2><a href="${post.slug}/">${post.title}</a></h2>
             <p>${post.excerpt}</p>
           </div>
         </article>`,
@@ -235,10 +242,10 @@ function renderBlogIndex() {
   });
 }
 
-async function renderPost(post) {
+async function renderPost(post, { backHref = "./", prefix = "../" } = {}) {
   const body = await readFile(pagePath(post.body), "utf8");
   const content = `<article class="article">
-        <a class="back-link" href="./">Back to blog</a>
+        <a class="back-link" href="${backHref}">Back to blog</a>
         <header>
           <p class="eyebrow">${post.displayDate}</p>
           <h1>${post.title}</h1>
@@ -253,30 +260,31 @@ ${indent(body, 10)}
     current: "blog",
     description: post.description,
     mainClass: "shell shell-article",
-    prefix: "../",
+    prefix,
     title: `${post.title} / ${site.author}`,
   });
 }
 
-function renderProfile() {
+function renderProfile({ prefix = "" } = {}) {
   const meta = profile.player.meta.map((item) => `<span>${item}</span>`).join("\n              ");
   const notes = profile.notes.map((item) => `<p>${item}</p>`).join("\n                ");
   const missions = profile.missions
-    .map(
-      (mission) => `<details class="server-row mission-row">
+    .map((mission) => {
+      const status = mission.status.replace('href="blog/"', `href="${prefix}blog/"`);
+      return `<details class="server-row mission-row">
                   <summary>
                     <span>${mission.role}</span>
                     <span>${mission.mission}</span>
                     <span>${mission.date}</span>
-                    <span>${mission.status}</span>
+                    <span>${status}</span>
                   </summary>
                   <p>${mission.details}</p>
-                </details>`,
-    )
+                </details>`;
+    })
     .join("\n                ");
   const servers = profile.servers
     .map(
-      (server) => `<a href="${server.href}"${externalAttrs(server.href)} class="server-row">
+      (server) => `<a href="${localHref(server.href, prefix)}"${externalAttrs(server.href)} class="server-row">
                   <span>${server.name}</span>
                   <span>${server.map}</span>
                   <span>${server.description}</span>
@@ -294,7 +302,7 @@ function renderProfile() {
 
         <div class="cs-window-body">
           <aside class="player-card" aria-label="Player summary">
-            <img src="assets/radar.svg" alt="" class="radar" />
+            <img src="${prefix}assets/radar.svg" alt="" class="radar" />
             <h1>${profile.player.name}</h1>
             <p>${profile.player.summary}</p>
             <div class="player-meta">
@@ -346,7 +354,7 @@ function renderProfile() {
         </div>
 
         <footer class="cs-window-footer">
-          <a class="cs-btn" href="blog/">Open blog</a>
+          <a class="cs-btn" href="${prefix}blog/">Open blog</a>
         </footer>
       </section>`;
 
@@ -357,6 +365,7 @@ function renderProfile() {
     description: profile.player.summary,
     headerVariant: "draft-topbar",
     mainClass: "cs-draft-shell",
+    prefix,
     title: `Profile / ${site.author}`,
   });
 }
@@ -368,11 +377,16 @@ async function writePage(path, content) {
 }
 
 await writePage("index.html", renderHome());
+await writePage("profile/index.html", renderProfile({ prefix: "../" }));
 await writePage("profile.html", renderProfile());
 await writePage("blog/index.html", renderBlogIndex());
 
 for (const post of sortedPosts) {
+  await writePage(
+    `blog/${post.slug}/index.html`,
+    await renderPost(post, { backHref: "../", prefix: "../../" }),
+  );
   await writePage(`blog/${post.slug}.html`, await renderPost(post));
 }
 
-console.log(`Built ${3 + sortedPosts.length} pages.`);
+console.log(`Built ${3 + sortedPosts.length * 2} pages.`);

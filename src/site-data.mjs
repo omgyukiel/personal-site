@@ -17,7 +17,7 @@ export const home = {
     "This is my quiet corner for notes, projects, taste, and whatever I am trying to understand next. If you're interested in me professionally, checkout (did you see what I did) my profile page!",
   actions: [
     { label: "Patch notes", href: "blog/" },
-    { label: "Open profile", href: "profile.html" },
+    { label: "Open profile", href: "profile/" },
   ],
   status: [
     {

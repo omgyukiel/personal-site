@@ -17,7 +17,7 @@ test("blog index keeps its visual layout", async ({ page }, testInfo) => {
 });
 
 test("hello world post keeps its visual layout", async ({ page }, testInfo) => {
-  await page.goto("/blog/hello-world.html");
+  await page.goto("/blog/hello-world/");
 
   await expect(page).toHaveScreenshot(`hello-world-${testInfo.project.name}.png`, {
     fullPage: true,
@@ -25,7 +25,7 @@ test("hello world post keeps its visual layout", async ({ page }, testInfo) => {
 });
 
 test("profile tabs keep their visual layouts", async ({ page }, testInfo) => {
-  await page.goto("/profile.html");
+  await page.goto("/profile/");
   await expect(page).toHaveScreenshot(`profile-${testInfo.project.name}.png`, {
     fullPage: true,
   });
