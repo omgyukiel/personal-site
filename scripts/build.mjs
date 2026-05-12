@@ -1,10 +1,23 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 import { home, posts, profile, site } from "../src/site-data.mjs";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const sortedPosts = [...posts].sort((a, b) => b.date.localeCompare(a.date));
+const routes = {
+  home: "/",
+  profile: "/profile/",
+  blog: "/blog/",
+  post: (slug) => `/blog/${slug}/`,
+};
+const assets = {
+  mark: "/assets/mark.svg",
+  cs16: "/assets/cs16.min.css",
+  styles: "/styles.css",
+  headshot: "/assets/profile-office.jpg",
+  radar: "/assets/radar.svg",
+};
 
 function pagePath(path) {
   return join(projectRoot, path);
@@ -25,21 +38,23 @@ function externalAttrs(href) {
     : "";
 }
 
-function localHref(href, prefix = "") {
-  if (href.startsWith("http") || href.startsWith("/")) return href;
-  return `${prefix}${href}`;
+function relativeUrl(fromRoute, toRoute) {
+  if (toRoute.startsWith("http") || toRoute.startsWith("#")) return toRoute;
+  const fromDir = fromRoute.endsWith("/") ? fromRoute : posix.dirname(fromRoute);
+  const target = toRoute.endsWith("/") ? `${toRoute}index.html` : toRoute;
+  let relative = posix.relative(fromDir, target);
+
+  if (!relative) return "./";
+  if (relative === "index.html") return "./";
+  if (relative.endsWith("/index.html")) relative = relative.slice(0, -"index.html".length);
+  return relative.startsWith(".") ? relative : `./${relative}`;
 }
 
-function navHref(item, prefix, current = "") {
-  if (item === "home") return prefix ? prefix : "./";
-  if (item === "blog" && current === "blog") return prefix === "../../" ? "../" : "./";
-  if (item === "profile" && current === "profile" && prefix) return "./";
-  if (item === "profile") return `${prefix}profile/`;
-  if (item === "blog") return `${prefix}blog/`;
-  return item;
+function pageHref(fromRoute, toRoute) {
+  return relativeUrl(fromRoute, toRoute);
 }
 
-function head({ description, prefix = "", title, ogDescription, ogTitle }) {
+function head({ description, title, ogDescription, ogTitle }) {
   const og = ogTitle
     ? `
     <meta property="og:title" content="${ogTitle}" />
@@ -55,34 +70,33 @@ function head({ description, prefix = "", title, ogDescription, ogTitle }) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="${description}" />${og}
     <title>${title}</title>
-    <link rel="icon" href="${prefix}assets/mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="${prefix}assets/cs16.min.css" />
-    <link rel="stylesheet" href="${prefix}styles.css" />
+    <link rel="icon" href="${assets.mark}" type="image/svg+xml" />
+    <link rel="stylesheet" href="${assets.cs16}" />
+    <link rel="stylesheet" href="${assets.styles}" />
   </head>`;
 }
 
-function header({ current, prefix = "", variant = "site-header" }) {
+function header({ current, route, variant = "site-header" }) {
   const navItems = [
-    ["home", "Home"],
-    ["profile", "Profile"],
-    ["blog", "Blog"],
+    [routes.home, "Home", "home"],
+    [routes.profile, "Profile", "profile"],
+    [routes.blog, "Blog", "blog"],
     [site.linkedIn, "LinkedIn"],
     [site.github, "GitHub"],
     [`https://mail.google.com/mail/?view=cm&fs=1&to=${site.email}`, "Email"],
   ];
 
   const links = navItems
-    .map(([href, label]) => {
-      const itemKey = href === "home" || href === "profile" || href === "blog" ? href : "";
+    .map(([href, label, itemKey = ""]) => {
       const currentAttr = itemKey === current ? ' aria-current="page"' : "";
-      const resolvedHref = itemKey ? navHref(itemKey, prefix, current) : href;
+      const resolvedHref = itemKey ? pageHref(route, href) : href;
       return `<a href="${resolvedHref}"${currentAttr}${externalAttrs(resolvedHref)}>${label}</a>`;
     })
     .join("\n          ");
 
   return `<header class="${variant}">
-        <a class="brand" href="${navHref("home", prefix, current)}" aria-label="${site.author} home">
-          <img src="${prefix}assets/mark.svg" alt="" width="36" height="36" />
+        <a class="brand" href="${pageHref(route, routes.home)}" aria-label="${site.author} home">
+          <img src="${assets.mark}" alt="" width="36" height="36" />
           <span>${site.author}</span>
         </a>
         <nav aria-label="Primary navigation">
@@ -101,14 +115,14 @@ function footer() {
       </footer>`;
 }
 
-function document({ bodyClass = "", content, description, mainClass, prefix = "", title, current, headerVariant, ogDescription, ogTitle }) {
+function document({ bodyClass = "", content, description, mainClass, title, current, route, headerVariant, ogDescription, ogTitle }) {
   const bodyAttr = bodyClass ? ` class="${bodyClass}"` : "";
   return `<!doctype html>
 <html lang="en">
-  ${head({ description, prefix, title, ogDescription, ogTitle })}
+  ${head({ description, title, ogDescription, ogTitle })}
   <body${bodyAttr}>
     <main class="${mainClass}">
-      ${header({ current, prefix, variant: headerVariant })}
+      ${header({ current, route, variant: headerVariant })}
 
 ${indent(content, 6)}
 
@@ -121,6 +135,7 @@ ${indent(content, 6)}
 
 function renderHome() {
   const latestPost = sortedPosts[0];
+  const route = routes.home;
   const statusRows = home.status
     .map(
       (item) => `<div>
@@ -133,7 +148,7 @@ function renderHome() {
   const about = home.about.map((paragraph) => `<p>${paragraph}</p>`).join("\n          ");
   const tags = home.tags.map((tag) => `<li>${tag}</li>`).join("\n              ");
   const actions = home.actions
-    .map((action) => `<a class="cs-btn" href="${action.href}">${action.label}</a>`)
+    .map((action) => `<a class="cs-btn" href="${pageHref(route, action.href)}">${action.label}</a>`)
     .join("\n            ");
 
   const content = `<section class="hero" aria-labelledby="intro-title">
@@ -147,7 +162,7 @@ function renderHome() {
         </div>
         <div class="home-side">
           <figure class="headshot-panel">
-            <img src="assets/profile-office.jpg" alt="${site.author} composited over a Counter-Strike office map" width="900" height="900" />
+            <img src="${assets.headshot}" alt="${site.author} composited over a Counter-Strike office map" width="900" height="900" />
           </figure>
           <aside class="status-panel" aria-label="Current status">
             <div class="panel-title">status</div>
@@ -183,12 +198,12 @@ function renderHome() {
       <section class="log" aria-labelledby="log-title">
         <div class="section-heading">
           <h2 id="log-title">Latest</h2>
-          <a href="blog/">All posts</a>
+          <a href="${pageHref(route, routes.blog)}">All posts</a>
         </div>
         <article class="post-row">
           <time datetime="${latestPost.date}">${latestPost.displayDate}</time>
           <div>
-            <h3><a href="blog/${latestPost.slug}/">${latestPost.title}</a></h3>
+            <h3><a href="${pageHref(route, routes.post(latestPost.slug))}">${latestPost.title}</a></h3>
             <p>${latestPost.homeExcerpt ?? latestPost.excerpt}</p>
           </div>
         </article>
@@ -199,6 +214,7 @@ function renderHome() {
     current: "home",
     description: site.description,
     mainClass: "shell",
+    route,
     title: site.title,
     ogTitle: site.title,
     ogDescription:
@@ -207,12 +223,13 @@ function renderHome() {
 }
 
 function renderBlogIndex() {
+  const route = routes.blog;
   const postRows = sortedPosts
     .map(
       (post) => `<article class="post-row">
           <time datetime="${post.date}">${post.displayDate}</time>
           <div>
-            <h2><a href="${post.slug}/">${post.title}</a></h2>
+            <h2><a href="${pageHref(route, routes.post(post.slug))}">${post.title}</a></h2>
             <p>${post.excerpt}</p>
           </div>
         </article>`,
@@ -237,15 +254,15 @@ function renderBlogIndex() {
     current: "blog",
     description: site.blogDescription,
     mainClass: "shell shell-narrow",
-    prefix: "../",
+    route,
     title: `Blog / ${site.author}`,
   });
 }
 
-async function renderPost(post, { backHref = "./", prefix = "../" } = {}) {
+async function renderPost(post, { route = `/blog/${post.slug}.html` } = {}) {
   const body = await readFile(pagePath(post.body), "utf8");
   const content = `<article class="article">
-        <a class="back-link" href="${backHref}">Back to blog</a>
+        <a class="back-link" href="${pageHref(route, routes.blog)}">Back to blog</a>
         <header>
           <p class="eyebrow">${post.displayDate}</p>
           <h1>${post.title}</h1>
@@ -260,17 +277,17 @@ ${indent(body, 10)}
     current: "blog",
     description: post.description,
     mainClass: "shell shell-article",
-    prefix,
+    route,
     title: `${post.title} / ${site.author}`,
   });
 }
 
-function renderProfile({ prefix = "" } = {}) {
+function renderProfile({ route = routes.profile } = {}) {
   const meta = profile.player.meta.map((item) => `<span>${item}</span>`).join("\n              ");
   const notes = profile.notes.map((item) => `<p>${item}</p>`).join("\n                ");
   const missions = profile.missions
     .map((mission) => {
-      const status = mission.status.replace('href="blog/"', `href="${prefix}blog/"`);
+      const status = mission.status.replace('href="blog/"', `href="${pageHref(route, routes.blog)}"`);
       return `<details class="server-row mission-row">
                   <summary>
                     <span>${mission.role}</span>
@@ -284,7 +301,7 @@ function renderProfile({ prefix = "" } = {}) {
     .join("\n                ");
   const servers = profile.servers
     .map(
-      (server) => `<a href="${localHref(server.href, prefix)}"${externalAttrs(server.href)} class="server-row">
+      (server) => `<a href="${pageHref(route, server.href)}"${externalAttrs(server.href)} class="server-row">
                   <span>${server.name}</span>
                   <span>${server.map}</span>
                   <span>${server.description}</span>
@@ -302,7 +319,7 @@ function renderProfile({ prefix = "" } = {}) {
 
         <div class="cs-window-body">
           <aside class="player-card" aria-label="Player summary">
-            <img src="${prefix}assets/radar.svg" alt="" class="radar" />
+            <img src="${assets.radar}" alt="" class="radar" />
             <h1>${profile.player.name}</h1>
             <p>${profile.player.summary}</p>
             <div class="player-meta">
@@ -354,7 +371,7 @@ function renderProfile({ prefix = "" } = {}) {
         </div>
 
         <footer class="cs-window-footer">
-          <a class="cs-btn" href="${prefix}blog/">Open blog</a>
+          <a class="cs-btn" href="${pageHref(route, routes.blog)}">Open blog</a>
         </footer>
       </section>`;
 
@@ -365,7 +382,7 @@ function renderProfile({ prefix = "" } = {}) {
     description: profile.player.summary,
     headerVariant: "draft-topbar",
     mainClass: "cs-draft-shell",
-    prefix,
+    route,
     title: `Profile / ${site.author}`,
   });
 }
@@ -377,15 +394,12 @@ async function writePage(path, content) {
 }
 
 await writePage("index.html", renderHome());
-await writePage("profile/index.html", renderProfile({ prefix: "../" }));
-await writePage("profile.html", renderProfile());
+await writePage("profile/index.html", renderProfile());
+await writePage("profile.html", renderProfile({ route: "/profile.html" }));
 await writePage("blog/index.html", renderBlogIndex());
 
 for (const post of sortedPosts) {
-  await writePage(
-    `blog/${post.slug}/index.html`,
-    await renderPost(post, { backHref: "../", prefix: "../../" }),
-  );
+  await writePage(`blog/${post.slug}/index.html`, await renderPost(post, { route: routes.post(post.slug) }));
   await writePage(`blog/${post.slug}.html`, await renderPost(post));
 }
 
