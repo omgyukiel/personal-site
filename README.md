@@ -22,3 +22,17 @@ npm run start
 ```
 
 Then visit `http://127.0.0.1:8000`.
+
+## Tests
+
+```sh
+npm install
+npm test
+```
+
+To update snapshots:
+
+```sh
+npm run test:update
+npm test
+```

@@ -71,7 +71,7 @@ export const profile = {
   },
   notes: [
     "I'm a software engineer with 2 YOE working on Clinical AI Agents at Oracle. I like solving problems that are interesting under the hood and working deeply towards something impactful is what excites me.",
-    "I'm a fundamentalist in that I like to chase principled understanding for pragmatic outcomes ie. I find satisfaction out of chasing mastery and being surrounded by people who are a lot smarter than me. Feel free to check around!",
+    "I'm a fundamentalist in that I like to chase first principled understanding for pragmatic outcomes ie. I find satisfaction out of chasing mastery and being surrounded by people who are a lot smarter than me. Feel free to look around!",
   ],
   missions: [
     {
