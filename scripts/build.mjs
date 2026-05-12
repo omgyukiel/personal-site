@@ -155,11 +155,6 @@ function renderHome() {
         <div class="hero-copy">
           <p class="eyebrow">${home.eyebrow}</p>
           <h1 id="intro-title">${home.title}</h1>
-          <div class="server-strip" aria-label="Current server">
-            <span><strong>map</strong> de_culver_city</span>
-            <span><strong>players</strong> 1/10</span>
-            <span><strong>clock</strong> <time id="home-clock" datetime="">loading</time></span>
-          </div>
           <div class="hero-lower">
             <p class="lede">${home.lede} <span class="professional-callout">${home.professionalPrompt}</span></p>
             <div class="actions" aria-label="Contact and reading links">
@@ -171,6 +166,11 @@ function renderHome() {
           <figure class="headshot-panel">
             <img src="${assets.headshot}" alt="${site.author} composited over a Counter-Strike office map" width="900" height="900" />
           </figure>
+          <div class="server-strip" aria-label="Current server">
+            <span><strong>map</strong> de_culver_city</span>
+            <span><strong>players</strong> 1/10</span>
+            <span><strong>clock</strong> <time id="home-clock" datetime="">loading</time></span>
+          </div>
           <aside class="status-panel" aria-label="Current status">
             <div class="panel-title">status</div>
             <dl>

@@ -100,7 +100,7 @@ nav a[aria-current="page"] {
 
 .hero-copy {
   display: flex;
-  min-height: 520px;
+  min-height: 480px;
   flex-direction: column;
 }
 
@@ -112,15 +112,15 @@ nav a[aria-current="page"] {
   display: flex;
   flex-wrap: wrap;
   gap: 1px;
-  width: min(100%, 540px);
-  margin-top: clamp(28px, 5vh, 58px);
+  width: 100%;
+  margin: 0;
   border: 1px solid var(--line);
   background: rgba(37, 37, 31, 0.72);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
 }
 
 .server-strip span {
-  flex: 1 1 160px;
+  flex: 1 1 106px;
   min-width: 0;
   border: 1px solid;
   border-color: rgba(140, 146, 132, 0.48) rgba(41, 44, 33, 0.86) rgba(41, 44, 33, 0.86) rgba(140, 146, 132, 0.48);
@@ -533,7 +533,7 @@ dd {
   }
 
   .server-strip {
-    margin-top: 24px;
+    width: min(100%, 330px);
   }
 
   h1 {
