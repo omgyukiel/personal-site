@@ -12,7 +12,7 @@ export const site = {
 
 export const home = {
   eyebrow: "california / coding / games / life",
-  title: "hi, i'm kenny. i like code, games, and hard things.",
+  title: "hi, i'm kenny. i like code, games, and deep skill curves.",
   lede:
     "This is my quiet corner for notes, projects, taste, and whatever I am trying to understand next.",
   professionalPrompt:

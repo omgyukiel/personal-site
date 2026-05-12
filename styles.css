@@ -94,18 +94,8 @@ nav a[aria-current="page"] {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(330px, 360px);
   gap: 44px;
-  align-items: stretch;
+  align-items: start;
   padding: 24px 0 28px;
-}
-
-.hero-copy {
-  display: flex;
-  min-height: 480px;
-  flex-direction: column;
-}
-
-.hero-lower {
-  margin-top: auto;
 }
 
 .server-strip {
@@ -522,14 +512,6 @@ dd {
   .about-grid {
     grid-template-columns: 1fr;
     gap: 28px;
-  }
-
-  .hero-copy {
-    min-height: 0;
-  }
-
-  .hero-lower {
-    margin-top: 0;
   }
 
   .server-strip {
