@@ -16,8 +16,8 @@ export const home = {
   lede:
     "This is my quiet corner for notes, projects, taste, and whatever I am trying to understand next. If you're interested in me professionally, checkout (did you see what I did) my profile page!",
   actions: [
-    { label: "Patch notes", href: "blog/" },
-    { label: "Open profile", href: "profile/" },
+    { label: "Patch notes", href: "/blog/" },
+    { label: "Open profile", href: "/profile/" },
   ],
   status: [
     {
@@ -134,7 +134,7 @@ export const profile = {
       map: "bhop_notes",
       description: "bhop through notes and demos",
       ping: "16",
-      href: "blog/",
+      href: "/blog/",
     },
     {
       name: "Email",
