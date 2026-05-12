@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" role="img" aria-labelledby="title desc">
+  <title id="title">Kenny Levu mark</title>
+  <desc id="desc">A minimal square KL monogram in a retro interface style.</desc>
+  <rect width="72" height="72" fill="#11110f"/>
+  <rect x="5" y="5" width="62" height="62" fill="#25251f" stroke="#d6b95d" stroke-width="3"/>
+  <path d="M19 17h8v16l14-16h10L36 34l17 21H42L27 36v19h-8z" fill="#e7e1c9"/>
+  <path d="M45 46h10v9H45z" fill="#70b3a2"/>
+</svg>
