@@ -504,7 +504,7 @@ dd {
   --accent-2: #d8ded3;
   background:
     linear-gradient(rgba(41, 44, 33, 0.72), rgba(41, 44, 33, 0.84)),
-    url("/assets/radar.svg") center / min(840px, 110vw) auto fixed,
+    url("assets/radar.svg") center / min(840px, 110vw) auto fixed,
     #292c21;
 }
 
