@@ -92,10 +92,55 @@ nav a[aria-current="page"] {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 330px;
-  gap: 48px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(330px, 360px);
+  gap: 44px;
+  align-items: stretch;
   padding: 24px 0 28px;
+}
+
+.hero-copy {
+  display: flex;
+  min-height: 520px;
+  flex-direction: column;
+}
+
+.hero-lower {
+  margin-top: auto;
+}
+
+.server-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  width: min(100%, 540px);
+  margin-top: clamp(28px, 5vh, 58px);
+  border: 1px solid var(--line);
+  background: rgba(37, 37, 31, 0.72);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+}
+
+.server-strip span {
+  flex: 1 1 160px;
+  min-width: 0;
+  border: 1px solid;
+  border-color: rgba(140, 146, 132, 0.48) rgba(41, 44, 33, 0.86) rgba(41, 44, 33, 0.86) rgba(140, 146, 132, 0.48);
+  background: rgba(48, 48, 40, 0.66);
+  padding: 6px 8px 5px;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.server-strip strong {
+  display: block;
+  color: var(--accent-2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+#home-clock {
+  white-space: nowrap;
 }
 
 .eyebrow {
@@ -135,10 +180,11 @@ h3 {
 }
 
 .lede {
-  max-width: 68ch;
+  max-width: 72ch;
   margin: 24px 0 0;
   color: var(--muted);
-  font-size: 1.02rem;
+  font-size: 1.08rem;
+  line-height: 1.68;
 }
 
 .professional-callout {
@@ -148,12 +194,12 @@ h3 {
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 28px;
+  gap: 14px;
+  margin-top: 30px;
 }
 
 .cs-btn {
-  min-width: 108px;
+  min-width: 124px;
   text-align: center;
 }
 
@@ -173,7 +219,7 @@ h3 {
 
 .headshot-panel {
   justify-self: end;
-  width: min(100%, 190px);
+  width: min(100%, 320px);
   aspect-ratio: 1;
   margin: 0;
   border: 1px solid var(--line);
@@ -478,6 +524,18 @@ dd {
     gap: 28px;
   }
 
+  .hero-copy {
+    min-height: 0;
+  }
+
+  .hero-lower {
+    margin-top: 0;
+  }
+
+  .server-strip {
+    margin-top: 24px;
+  }
+
   h1 {
     max-width: 11ch;
   }
@@ -500,7 +558,7 @@ dd {
 
   .headshot-panel {
     justify-self: start;
-    width: min(100%, 220px);
+    width: min(100%, 300px);
   }
 
   .status-panel {

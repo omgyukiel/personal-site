@@ -152,12 +152,19 @@ function renderHome() {
     .join("\n            ");
 
   const content = `<section class="hero" aria-labelledby="intro-title">
-        <div>
+        <div class="hero-copy">
           <p class="eyebrow">${home.eyebrow}</p>
           <h1 id="intro-title">${home.title}</h1>
-          <p class="lede">${home.lede} <span class="professional-callout">${home.professionalPrompt}</span></p>
-          <div class="actions" aria-label="Contact and reading links">
-            ${actions}
+          <div class="server-strip" aria-label="Current server">
+            <span><strong>map</strong> de_culver_city</span>
+            <span><strong>players</strong> 1/10</span>
+            <span><strong>clock</strong> <time id="home-clock" datetime="">loading</time></span>
+          </div>
+          <div class="hero-lower">
+            <p class="lede">${home.lede} <span class="professional-callout">${home.professionalPrompt}</span></p>
+            <div class="actions" aria-label="Contact and reading links">
+              ${actions}
+            </div>
           </div>
         </div>
         <div class="home-side">
@@ -207,7 +214,9 @@ function renderHome() {
             <p>${latestPost.homeExcerpt ?? latestPost.excerpt}</p>
           </div>
         </article>
-      </section>`;
+      </section>
+
+      <script type="module" src="/assets/home-clock.js"></script>`;
 
   return document({
     content,

@@ -33,13 +33,20 @@
       </header>
 
       <section class="hero" aria-labelledby="intro-title">
-              <div>
+              <div class="hero-copy">
                 <p class="eyebrow">california / coding / games / life</p>
-                <h1 id="intro-title">hi, i'm kenny. i like code, games, and getting good at hard things.</h1>
-                <p class="lede">This is my quiet corner for notes, projects, taste, and whatever I am trying to understand next. <span class="professional-callout">If you're interested in me professionally, checkout (😉) my profile page!</span></p>
-                <div class="actions" aria-label="Contact and reading links">
-                  <a class="cs-btn" href="./blog/">Patch notes</a>
+                <h1 id="intro-title">hi, i'm kenny. i like code, games, and hard things.</h1>
+                <div class="server-strip" aria-label="Current server">
+                  <span><strong>map</strong> de_culver_city</span>
+                  <span><strong>players</strong> 1/10</span>
+                  <span><strong>clock</strong> <time id="home-clock" datetime="">loading</time></span>
+                </div>
+                <div class="hero-lower">
+                  <p class="lede">This is my quiet corner for notes, projects, taste, and whatever I am trying to understand next. <span class="professional-callout">If you're interested in me professionally, checkout (😉) my profile page!</span></p>
+                  <div class="actions" aria-label="Contact and reading links">
+                    <a class="cs-btn" href="./blog/">Patch notes</a>
                   <a class="cs-btn" href="./profile/">Open profile</a>
+                  </div>
                 </div>
               </div>
               <div class="home-side">
@@ -120,6 +127,8 @@
                 </div>
               </article>
             </section>
+      
+            <script type="module" src="/assets/home-clock.js"></script>
 
       <footer class="site-credit">
         <span class="site-credit-name">made by Kenny Levu</span>

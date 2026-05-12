@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 test("home page keeps its visual layout", async ({ page }, testInfo) => {
+  await page.addInitScript(() => {
+    window.__HOME_CLOCK_TEST_VALUE__ = "09:00:00 PDT";
+  });
   await page.goto("/");
 
   await expect(page).toHaveScreenshot(`home-${testInfo.project.name}.png`, {
