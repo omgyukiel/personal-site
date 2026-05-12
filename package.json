@@ -2,7 +2,8 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "start": "python3 -m http.server 8000",
-    "test": "playwright test",
+    "test": "npm run test:unit && playwright test",
+    "test:unit": "npm run build && node --test tests/routing.test.mjs",
     "test:update": "playwright test --update-snapshots"
   },
   "devDependencies": {
