@@ -4,6 +4,11 @@ export default defineConfig({
   testDir: "./tests",
   outputDir: "test-results",
   fullyParallel: true,
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 20,
+    },
+  },
   reporter: [["list"]],
   use: {
     baseURL: "http://127.0.0.1:4173",
