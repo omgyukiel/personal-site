@@ -1,11 +1,24 @@
-# Kenny Levu Portfolio
+# My personal-site
 
-Minimal static portfolio and blog built with plain HTML/CSS and a vendored copy of the `cs16.css` stylesheet.
+Personal site built with plain HTML/CSS and a vendored copy of `cs16.css`.
+
+## Editing Content
+
+- Home, profile, nav links, status text, tags, and blog metadata live in `src/site-data.mjs`.
+- Blog post bodies live in `src/posts/*.html`.
+
+To add a blog post:
+
+1. Add a post body at `src/posts/my-post.html`.
+2. Add a matching entry to the `posts` array in `src/site-data.mjs`.
+3. Run `npm run build`.
 
 ## Local Preview
+Run static site generator with npm build
 
 ```sh
-python3 -m http.server 4173
+npm run build
+npm run start
 ```
 
-Then visit `http://127.0.0.1:4173`.
+Then visit `http://127.0.0.1:8000`.
