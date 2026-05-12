@@ -155,7 +155,7 @@ function renderHome() {
         <div>
           <p class="eyebrow">${home.eyebrow}</p>
           <h1 id="intro-title">${home.title}</h1>
-          <p class="lede">${home.lede}</p>
+          <p class="lede">${home.lede} <span class="professional-callout">${home.professionalPrompt}</span></p>
           <div class="actions" aria-label="Contact and reading links">
             ${actions}
           </div>

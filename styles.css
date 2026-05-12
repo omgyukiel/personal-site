@@ -141,6 +141,10 @@ h3 {
   font-size: 1.02rem;
 }
 
+.professional-callout {
+  color: var(--text);
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

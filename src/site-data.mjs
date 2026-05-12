@@ -14,7 +14,9 @@ export const home = {
   eyebrow: "california / coding / games / life",
   title: "hi, i'm kenny. i like code, games, and getting good at hard things.",
   lede:
-    "This is my quiet corner for notes, projects, taste, and whatever I am trying to understand next. If you're interested in me professionally, checkout (did you see what I did) my profile page!",
+    "This is my quiet corner for notes, projects, taste, and whatever I am trying to understand next.",
+  professionalPrompt:
+    "If you're interested in me professionally, checkout (😉) my profile page!",
   actions: [
     { label: "Patch notes", href: "/blog/" },
     { label: "Open profile", href: "/profile/" },
@@ -28,7 +30,7 @@ export const home = {
     {
       label: "learning",
       value:
-        'OMSCS, <a href="https://omscs.gatech.edu/cs-6250-computer-networks" target="_blank" rel="noopener noreferrer">CN</a>, DDIA, Go',
+        '<a href="https://omscs.gatech.edu/cs-6250-computer-networks" target="_blank" rel="noopener noreferrer">CN</a>, DDIA, Go',
     },
     {
       label: "recent",
@@ -36,6 +38,7 @@ export const home = {
         '<a href="https://omscs.gatech.edu/cs-6200-introduction-operating-systems" target="_blank" rel="noopener noreferrer">Operating Systems</a>',
     },
     { label: "activities", value: "Gym, Rehab" },
+    { label: "TODO", value: "Next blog post (MSI)" },
   ],
   about: [
     `I'm 25, I grew up in Fresno, California - and I tend to orbit things with deep skill curves: software, esports, and muay thai. Since I was a kid I always new I wanted to move out and live on my own. In November 2025 I moved to Culver City to work remotely for Oracle, and ever since achieving my "dream" I've been figuring out life since.`,
