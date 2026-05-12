@@ -259,7 +259,7 @@ function renderBlogIndex() {
   });
 }
 
-async function renderPost(post, { route = `/blog/${post.slug}.html` } = {}) {
+async function renderPost(post, { route = routes.post(post.slug) } = {}) {
   const body = await readFile(pagePath(post.body), "utf8");
   const content = `<article class="article">
         <a class="back-link" href="${pageHref(route, routes.blog)}">Back to blog</a>
@@ -395,12 +395,10 @@ async function writePage(path, content) {
 
 await writePage("index.html", renderHome());
 await writePage("profile/index.html", renderProfile());
-await writePage("profile.html", renderProfile({ route: "/profile.html" }));
 await writePage("blog/index.html", renderBlogIndex());
 
 for (const post of sortedPosts) {
   await writePage(`blog/${post.slug}/index.html`, await renderPost(post, { route: routes.post(post.slug) }));
-  await writePage(`blog/${post.slug}.html`, await renderPost(post));
 }
 
-console.log(`Built ${3 + sortedPosts.length * 2} pages.`);
+console.log(`Built ${3 + sortedPosts.length} pages.`);
