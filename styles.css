@@ -448,6 +448,91 @@ dd {
   color: var(--muted);
 }
 
+.comments-panel {
+  width: min(100%, 96ch);
+  margin: 12px auto 0;
+  border: 1px solid;
+  border-color: rgba(140, 146, 132, 0.8) rgba(41, 44, 33, 0.95) rgba(41, 44, 33, 0.95) rgba(140, 146, 132, 0.8);
+  background: linear-gradient(180deg, rgba(62, 70, 55, 0.9), rgba(37, 37, 31, 0.92));
+  box-shadow: 0 18px 42px var(--shadow);
+}
+
+.comments-titlebar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 1px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(17, 17, 15, 0.5);
+}
+
+.comments-titlebar h2 {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  border: 1px solid;
+  border-color: rgba(140, 146, 132, 0.48) rgba(41, 44, 33, 0.86) rgba(41, 44, 33, 0.86) rgba(140, 146, 132, 0.48);
+  background: rgba(48, 56, 39, 0.92);
+  padding: 7px 10px 6px;
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.comments-scoreboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+}
+
+.comments-scoreboard div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  border: 1px solid;
+  border-color: rgba(140, 146, 132, 0.48) rgba(41, 44, 33, 0.86) rgba(41, 44, 33, 0.86) rgba(140, 146, 132, 0.48);
+  background: rgba(48, 48, 40, 0.66);
+  padding: 6px 8px 5px;
+  min-width: 0;
+}
+
+.comments-scoreboard dt {
+  color: var(--accent-2);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.comments-scoreboard dd {
+  color: var(--text);
+  font-size: 0.86rem;
+  line-height: 1.2;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.comments-body {
+  padding: 12px;
+}
+
+.giscus,
+.giscus-frame {
+  width: 100%;
+}
+
+.comments-setup {
+  margin: 0;
+  border: 1px solid var(--line);
+  background: rgba(17, 17, 15, 0.35);
+  padding: 14px 16px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 @media (min-width: 900px) {
   .article p {
     font-size: 1.125rem;
@@ -546,6 +631,15 @@ dd {
   .status-panel {
     justify-self: start;
     width: min(100%, 330px);
+  }
+
+  .comments-titlebar,
+  .comments-scoreboard {
+    grid-template-columns: 1fr;
+  }
+
+  .comments-titlebar h2 {
+    min-height: 34px;
   }
 }
 

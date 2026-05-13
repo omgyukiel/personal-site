@@ -2,6 +2,7 @@ import { access, readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { comments } from "../src/site-data.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 
@@ -85,4 +86,35 @@ test("generated internal route hrefs resolve to files in the site", async () => 
       await access(target);
     }
   }
+});
+
+test("blog posts include the giscus comments shell", async () => {
+  const html = await readFile(join(projectRoot, "blog/hello-world/index.html"), "utf8");
+
+  assert.match(html, /class="comments-panel"/);
+  assert.match(html, /match chat/);
+  assert.match(html, /<dt>map<\/dt>/);
+  assert.match(html, /de_hello_world/);
+  assert.match(html, /<dt>players<\/dt>/);
+  assert.match(html, /data-comment-player-count="hello-world"/);
+  assert.doesNotMatch(html, />auth</);
+  assert.doesNotMatch(html, />mode</);
+});
+
+test("blog comments show setup guidance until giscus category is configured", async () => {
+  const html = await readFile(join(projectRoot, "blog/hello-world/index.html"), "utf8");
+
+  if (comments.categoryId) {
+    assert.match(html, /https:\/\/giscus\.app\/client\.js/);
+    assert.match(html, /data-repo="omgyukiel\/personal-site"/);
+    assert.match(html, /data-repo-id="R_kgDOSa01KQ"/);
+    assert.match(html, /data-category="Blog comments"/);
+    assert.match(html, /data-category-id="[^"]+"/);
+    assert.match(html, /data-mapping="pathname"/);
+    assert.match(html, /data-emit-metadata="1"/);
+    return;
+  }
+
+  assert.match(html, /Enable GitHub Discussions/);
+  assert.doesNotMatch(html, /https:\/\/giscus\.app\/client\.js/);
 });

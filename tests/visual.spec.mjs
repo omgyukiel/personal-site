@@ -20,6 +20,7 @@ test("blog index keeps its visual layout", async ({ page }, testInfo) => {
 });
 
 test("hello world post keeps its visual layout", async ({ page }, testInfo) => {
+  await page.route("https://giscus.app/**", (route) => route.abort());
   await page.goto("/blog/hello-world/");
 
   await expect(page).toHaveScreenshot(`hello-world-${testInfo.project.name}.png`, {

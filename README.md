@@ -3,6 +3,9 @@
 Personal site built with plain HTML/CSS and a vendored copy of `cs16.css`.
 `npm run build` runs the static site generator.
 
+Credits to Samuel Breznjak for the 1.6 library, I've always wanted a game-inspired website.
+Feel free to fork my repo, please delete my photo though. 
+
 ## Editing Content
 
 - Home, profile, nav links, status text, tags, and blog metadata live in `src/site-data.mjs`
@@ -24,6 +27,13 @@ npm run start
 ```
 
 Then visit `http://127.0.0.1:8000`.
+
+## Comments
+
+Comments managed by Giscus integration 
+Each blog posts renders a comment panel in `src/site-data.mjs` 
+
+Comments are linked via Giscus generated repo/category ids. You can see per-blog-post threads in the discussions page in blog comments.
 
 ## Tests
 
