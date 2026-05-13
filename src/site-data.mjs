@@ -58,7 +58,7 @@ export const home = {
   ],
   about: [
     `I'm 25, I grew up in Fresno, California - and I tend to orbit things with deep skill curves: software, esports, and muay thai. Since I was a kid I always new I wanted to move out and live on my own. In November 2025 I moved to Culver City to work remotely for Oracle, and ever since achieving my "dream" I've been figuring out life since.`,
-    `For now I'm focused on "getting good" and developing taste both as a software "engineer" and a programmer. Outside of that I like spending time with my girlfriend and being consistent with fitness. I hope to continue posting and updating this site to archive my journeys!`,
+    `For now I'm focused on "getting good" and developing taste both as a software "engineer" and a programmer. Outside of that I like spending time with my girlfriend and being consistent with fitness. I hope to continue posting and updating this site along the way!`,
   ],
   credits:
     'Interface styling uses <a href="https://cs16.samke.me/" target="_blank" rel="noopener noreferrer">cs16.css</a> by Samuel Breznjak. There is also, without shame, extreme and HEAVY use of AI-generated code to create this website. I woudldn\'t have made something as creative otherwise. The theme is obviously inspired by CS 1.6 which holds signfiicance to me as CS:S and CS were one of my first games on PC and Xbox respectively.',
