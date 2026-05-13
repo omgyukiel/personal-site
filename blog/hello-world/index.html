@@ -84,6 +84,54 @@
                 </p>
               </div>
             </article>
+      
+            <section class="comments-panel" aria-labelledby="comments-title-hello-world">
+              <div class="comments-titlebar">
+                <h2 id="comments-title-hello-world">match chat</h2>
+                <dl class="comments-scoreboard" aria-label="Comment thread details">
+                  <div>
+                    <dt>map</dt>
+                    <dd>de_hello_world</dd>
+                  </div>
+                  <div>
+                    <dt>players</dt>
+                    <dd><span data-comment-player-count="hello-world">0</span>/16</dd>
+                  </div>
+                </dl>
+              </div>
+              <div class="comments-body">
+                <script
+                  src="https://giscus.app/client.js"
+                  data-repo="omgyukiel/personal-site"
+                  data-repo-id="R_kgDOSa01KQ"
+                  data-category="Blog comments"
+                  data-category-id="DIC_kwDOSa01Kc4C84rT"
+                  data-mapping="pathname"
+                  data-strict="0"
+                  data-reactions-enabled="1"
+                  data-emit-metadata="1"
+                  data-input-position="bottom"
+                  data-theme="dark_dimmed"
+                  data-lang="en"
+                  crossorigin="anonymous"
+                  async>
+                </script>
+                <script>
+                  window.addEventListener("message", (event) => {
+                    if (event.origin !== "https://giscus.app") return;
+                    if (!event.data || !event.data.giscus) return;
+      
+                    const total = event.data.giscus.discussion?.totalCommentCount;
+                    if (!Number.isInteger(total)) return;
+      
+                    document.querySelectorAll("[data-comment-player-count='hello-world']")
+                      .forEach((element) => {
+                        element.textContent = String(total);
+                      });
+                  });
+                </script>
+              </div>
+            </section>
 
       <footer class="site-credit">
         <span class="site-credit-name">made by Kenny Levu</span>

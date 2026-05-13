@@ -10,6 +10,22 @@ export const site = {
     "Notes by Kenny Levu on backend engineering, systems, agents, games, and taste.",
 };
 
+export const comments = {
+  enabled: true,
+  provider: "giscus",
+  repo: "omgyukiel/personal-site",
+  repoId: "R_kgDOSa01KQ",
+  category: "Blog comments",
+  categoryId: "DIC_kwDOSa01Kc4C84rT",
+  mapping: "pathname",
+  strict: "0",
+  reactionsEnabled: "1",
+  emitMetadata: "1",
+  inputPosition: "bottom",
+  theme: "dark_dimmed",
+  lang: "en",
+};
+
 export const home = {
   eyebrow: "california / coding / games / life",
   title: "hi, i'm kenny. i like code, games, and deep skill curves.",
@@ -160,6 +176,7 @@ export const posts = [
       "A small first marker for the site: what this place is for, and what I want it to stay away from.",
     homeExcerpt:
       "My small first marker for the site: what this place is for, and what I want it to stay away from.",
+    map: "de_hello_world",
     body: "src/posts/hello-world.html",
   },
 ];
