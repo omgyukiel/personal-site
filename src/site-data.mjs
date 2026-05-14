@@ -27,10 +27,10 @@ export const comments = {
 };
 
 export const home = {
-  eyebrow: "california / coding / games / life",
-  title: "hi, i'm kenny. i like code, games, and deep skill curves.",
+  eyebrow: "california / coding / games / mongolian throaat singing / life",
+  title: "my name kenny. me play game. me write code.",
   lede:
-    "This is my quiet corner for notes, projects, taste, and whatever I am trying to understand next.",
+    "This is my website, I write about my thoughts, projects, taste, and whatever I am doing next.",
   professionalPrompt:
     "If you're interested in me professionally, checkout (😉) my profile page!",
   actions: [
@@ -41,7 +41,7 @@ export const home = {
     {
       label: "now",
       value:
-        'Oracle, AI Agents, <a href="https://github.com/omgyukiel/spireside-together" target="_blank" rel="noopener noreferrer">Slay the Spire 2</a>',
+        '<a href="https://github.com/omgyukiel/spireside-together" target="_blank" rel="noopener noreferrer">Slay the Spire 2</a>, Oracle, AI Agents',
     },
     {
       label: "learning",
@@ -57,8 +57,8 @@ export const home = {
     { label: "TODO", value: "Next blog post (MSI)" },
   ],
   about: [
-    `I'm 25, I grew up in Fresno, California - and I tend to orbit things with deep skill curves: software, esports, and muay thai. Since I was a kid I always new I wanted to move out and live on my own. In November 2025 I moved to Culver City to work remotely for Oracle, and ever since achieving my "dream" I've been figuring out life since.`,
-    `For now I'm focused on "getting good" and developing taste both as a software "engineer" and a programmer. Outside of that I like spending time with my girlfriend and being consistent with fitness. I hope to continue posting and updating this site along the way!`,
+    `I'm 25, I grew up in Fresno, California - and I tend to like doing things with deep skill curves: software, esports, and muay thai. Since I was a kid I always knew I wanted to move out and live on my own. In November 2025 I moved to Culver City to work remotely for Oracle, and ever since achieving my "dream" I've been figuring out life since.`,
+    `For now I'm focused on "getting good" and developing taste both as a software "engineer" and a programmer. Outside of that I like spending time with my girlfriend and being consistent with fitness. I don't have any particular long term goals, but I want to keep updating my website along the way :)`,
   ],
   credits:
     'Interface styling uses <a href="https://cs16.samke.me/" target="_blank" rel="noopener noreferrer">cs16.css</a> by Samuel Breznjak. There is also, without shame, extreme and HEAVY use of AI-generated code to create this website. I woudldn\'t have made something as creative otherwise. The theme is obviously inspired by CS 1.6 which holds signfiicance to me as CS:S and CS were one of my first games on PC and Xbox respectively.',
@@ -173,9 +173,9 @@ export const posts = [
     displayDate: "May 11, 2026",
     description: "The first note on Kenny Levu's personal site.",
     excerpt:
-      "A small first marker for the site: what this place is for, and what I want it to stay away from.",
+      "That one time I wanted to be a react engineer.",
     homeExcerpt:
-      "My small first marker for the site: what this place is for, and what I want it to stay away from.",
+      "That one time I wanted to be a react engineer.",
     map: "de_hello_world",
     body: "src/posts/hello-world.html",
   },

@@ -303,14 +303,7 @@ function renderBlogIndex() {
     )
     .join("\n        ");
 
-  const content = `<section class="page-head">
-        <p class="eyebrow">blog</p>
-        <h1>Notes from the workbench.</h1>
-        <p>
-          Software dev, school, games, learning logs, and the occasional strong opinion held
-          lightly (or darkly?).
-        </p>
-      </section>
+  const content = `
 
       <section class="log" aria-label="Posts">
         ${postRows}
