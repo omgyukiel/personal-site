@@ -29,11 +29,11 @@ export const comments = {
 
 export const home = {
   eyebrow: "california / coding / games / mongolian throaat singing / life",
-  title: "my name kenny. me play game. me write code.",
+  title: "my name kenny. me play games. me write code.",
   lede:
-    "This is my website. You will read about my thoughts. You will read about my poor taste. I will talk about things.",
+    "I'm a developer living in Culver City, CA. I curretly work at Oracle and am a part-time student at Georgia Tech's OMSCS program.",
   professionalPrompt:
-    "If you're interested in me professionally, forget anything I said and checkout my profile page!",
+    "If you're interested in me professionally, reachout on LinkedIn and checkout my profile page!",
   actions: [
     { label: "Blog", href: "/blog/" },
     { label: "Open profile", href: "/profile/" },
@@ -58,8 +58,8 @@ export const home = {
     { label: "TODO", value: "Next blog post (MSI)" },
   ],
   about: [
-    `I'm 25, I grew up in Fresno, California - and I tend to like doing things with deep skill curves: software, esports, and muay thai. Since I was a kid I always knew I wanted to move out and live on my own. In November 2025 I moved to Culver City to work remotely for Oracle, and ever since achieving my "dream" I've been figuring out life since.`,
-    `For now I'm focused on "getting good" and developing taste both as a software "engineer" and a programmer. Outside of that I like spending time with my girlfriend and being consistent with fitness. I don't have any particular long term goals, but I want to keep updating my website along the way :)`,
+    `I'm 25 y/o developer from Fresno, California. I don't have much going on, but I've always been obsessed with one thing at a time and that used to be esports and muay thai. Now a days I'm focused on coding and being healthier. Since I was a kid I always knew I wanted to move out and live on my own. In November 2025 I moved to Culver City and started working remotely for Oracle. Ever since achieving my "dream" I've been figuring out life since.`,
+    `At this point, I'm focused on continuing to grow as a developer and building my own taste. Outside of that I like spending time with my girlfriend and being consistent with fitness. I don't have any particular long term goals, but I want to keep updating my blog with my thoughts and journeys along the way :)`,
   ],
   credits:
     'Interface styling uses <a href="https://cs16.samke.me/" target="_blank" rel="noopener noreferrer">cs16.css</a> by Samuel Breznjak. There is also, without shame, extreme and HEAVY use of AI-generated code to create this website. I woudldn\'t have made something as creative otherwise. The theme is obviously inspired by CS 1.6 which holds signfiicance to me as CS:S and CS were one of my first games on PC and Xbox respectively.',
