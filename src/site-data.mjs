@@ -31,11 +31,11 @@ export const home = {
   eyebrow: "california / coding / games / mongolian throaat singing / life",
   title: "my name kenny. me play game. me write code.",
   lede:
-    "This is my website, I write about my thoughts, projects, taste, and whatever I am doing next.",
+    "This is my website. You will read about my thoughts. You will read about my poor taste. I will talk about things.",
   professionalPrompt:
-    "If you're interested in me professionally, checkout (😉) my profile page!",
+    "If you're interested in me professionally, forget anything I said and checkout my profile page!",
   actions: [
-    { label: "Patch notes", href: "/blog/" },
+    { label: "Blog", href: "/blog/" },
     { label: "Open profile", href: "/profile/" },
   ],
   status: [
