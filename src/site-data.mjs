@@ -3,6 +3,7 @@ export const site = {
   email: "kennylevu1@gmail.com",
   github: "https://github.com/omgyukiel",
   linkedIn: "https://www.linkedin.com/in/kenny-levu/",
+  X: "https://x.com/omgyukiel",
   title: "Kenny Levu",
   description:
     "Kenny Levu's personal site for notes, projects, games, systems, martial arts, and the things he is learning.",
@@ -147,6 +148,13 @@ export const profile = {
       description: "18+ professional live action role play",
       ping: "31",
       href: "https://www.linkedin.com/in/kenny-levu/",
+    },
+    {
+      name: "X",
+      map: "zm_twitter",
+      description: "zombie escape [XP|SHOP|LvL]",
+      ping: "12",
+      href: "https://x.com/omgyukiel",
     },
     {
       name: "Blog",

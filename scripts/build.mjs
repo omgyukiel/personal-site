@@ -81,7 +81,9 @@ function header({ current, route, variant = "site-header" }) {
     [routes.home, "Home", "home"],
     [routes.profile, "Profile", "profile"],
     [routes.blog, "Blog", "blog"],
+    ["", "|", "separator"],
     [site.linkedIn, "LinkedIn"],
+    [site.X, "X"],
     [site.github, "GitHub"],
     [`https://mail.google.com/mail/?view=cm&fs=1&to=${site.email}`, "Email"],
   ];
@@ -90,6 +92,9 @@ function header({ current, route, variant = "site-header" }) {
     .map(([href, label, itemKey = ""]) => {
       const currentAttr = itemKey === current ? ' aria-current="page"' : "";
       const resolvedHref = itemKey ? pageHref(route, href) : href;
+      if (itemKey === "separator") {
+        return `<span class="separator" aria-hidden="true">${label}</span>`;
+      }
       return `<a href="${resolvedHref}"${currentAttr}${externalAttrs(resolvedHref)}>${label}</a>`;
     })
     .join("\n          ");
