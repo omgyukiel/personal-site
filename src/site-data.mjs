@@ -31,7 +31,7 @@ export const home = {
   eyebrow: "california / coding / games / mongolian throaat singing / life",
   title: "my name kenny. me play games. me write code.",
   lede:
-    "I'm a developer living in Culver City, CA. I curretly work at Oracle and am a part-time student at Georgia Tech's OMSCS program.",
+    "I'm a developer living in Culver City, CA. I currently work at Oracle and AI Agents!",
   professionalPrompt:
     "If you're interested in me professionally, reachout on LinkedIn and checkout my profile page!",
   actions: [
@@ -42,19 +42,19 @@ export const home = {
     {
       label: "now",
       value:
-        '<a href="https://github.com/omgyukiel/spireside-together" target="_blank" rel="noopener noreferrer">Slay the Spire 2</a>, Oracle, AI Agents',
+        'Oracle, AI Agents',
     },
     {
       label: "learning",
       value:
-        '<a href="https://omscs.gatech.edu/cs-6250-computer-networks" target="_blank" rel="noopener noreferrer">CN</a>, DDIA, Go',
+        ' DDIA, Go',
     },
     {
       label: "recent",
       value:
-        '<a href="https://omscs.gatech.edu/cs-6200-introduction-operating-systems" target="_blank" rel="noopener noreferrer">Operating Systems</a>',
+        '<a href="https://github.com/omgyukiel/spireside-together" target="_blank" rel="noopener noreferrer">Slay the Spire 2</a>',
     },
-    { label: "activities", value: "Gym, Rehab" },
+    { label: "activities", value: "Gym, Muay Thai" },
     { label: "TODO", value: "Next blog post (MSI)" },
   ],
   about: [
@@ -67,7 +67,6 @@ export const home = {
     "games",
     "Muay Thai",
     "backend",
-    "OMSCS",
     "pragmatic programming",
     "developing taste",
     "fitness",
@@ -101,14 +100,6 @@ export const profile = {
       status: "Active",
       details:
         "Engineering for clinical AI agent integrations and software dev for agent integration platforms.",
-    },
-    {
-      role: "Student / Georgia Institute of Technology",
-      mission: "MSCS, Computing Systems",
-      date: "01/26 - Now",
-      status: "Active",
-      details:
-        "Online, part-time master's program focused on computing systems. I enrolled in the program partly for fun to learn more about distributed systems and fundamental computer science! Recently got an A in Operating Systems and taking Computer Networks for the summer.",
     },
     {
       role: "Software Engineer / Motorola Solutions",
