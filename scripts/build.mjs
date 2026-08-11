@@ -1,13 +1,14 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
-import { comments, home, posts, profile, site } from "../src/site-data.mjs";
+import { comments, home, posts, projects, site } from "../src/site-data.mjs";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+const outputRoot = join(projectRoot, "dist");
 const sortedPosts = [...posts].sort((a, b) => b.date.localeCompare(a.date));
 const routes = {
   home: "/",
-  profile: "/profile/",
+  projects: "/projects/",
   blog: "/blog/",
   post: (slug) => `/blog/${slug}/`,
 };
@@ -16,11 +17,23 @@ const assets = {
   cs16: "/assets/cs16.min.css",
   styles: "/styles.css",
   headshot: "/assets/profile-office.jpg",
-  radar: "/assets/radar.svg",
 };
+const publicFiles = [
+  [".nojekyll", ".nojekyll"],
+  ["CNAME", "CNAME"],
+  ["styles.css", "styles.css"],
+  ["assets/ArialPixel.ttf", "assets/ArialPixel.ttf"],
+  ["assets/cs16.min.css", "assets/cs16.min.css"],
+  ["assets/mark.svg", "assets/mark.svg"],
+  ["assets/profile-office.jpg", "assets/profile-office.jpg"],
+];
 
-function pagePath(path) {
+function sourcePath(path) {
   return join(projectRoot, path);
+}
+
+function outputPath(path) {
+  return join(outputRoot, path);
 }
 
 function indent(value, spaces) {
@@ -39,14 +52,22 @@ function externalAttrs(href) {
 }
 
 function relativeUrl(fromRoute, toRoute) {
-  if (toRoute.startsWith("http") || toRoute.startsWith("#")) return toRoute;
+  if (
+    toRoute.startsWith("http") ||
+    toRoute.startsWith("mailto:") ||
+    toRoute.startsWith("#")
+  ) {
+    return toRoute;
+  }
+
   const fromDir = fromRoute.endsWith("/") ? fromRoute : posix.dirname(fromRoute);
   const target = toRoute.endsWith("/") ? `${toRoute}index.html` : toRoute;
   let relative = posix.relative(fromDir, target);
 
-  if (!relative) return "./";
-  if (relative === "index.html") return "./";
-  if (relative.endsWith("/index.html")) relative = relative.slice(0, -"index.html".length);
+  if (!relative || relative === "index.html") return "./";
+  if (relative.endsWith("/index.html")) {
+    relative = relative.slice(0, -"index.html".length);
+  }
   return relative.startsWith(".") ? relative : `./${relative}`;
 }
 
@@ -58,10 +79,7 @@ function head({ description, title, ogDescription, ogTitle }) {
   const og = ogTitle
     ? `
     <meta property="og:title" content="${ogTitle}" />
-    <meta
-      property="og:description"
-      content="${ogDescription}"
-    />
+    <meta property="og:description" content="${ogDescription}" />
     <meta property="og:type" content="website" />`
     : "";
 
@@ -76,32 +94,38 @@ function head({ description, title, ogDescription, ogTitle }) {
   </head>`;
 }
 
-function header({ current, route, variant = "site-header" }) {
+function header({ current, route }) {
   const navItems = [
-    [routes.home, "Home", "home"],
-    [routes.profile, "Profile", "profile"],
-    [routes.blog, "Blog", "blog"],
-    ["", "|", "separator"],
-    [site.linkedIn, "LinkedIn"],
-    [site.X, "X"],
-    [site.github, "GitHub"],
-    [`https://mail.google.com/mail/?view=cm&fs=1&to=${site.email}`, "Email"],
+    { href: routes.home, label: "Home", itemKey: "home" },
+    { href: routes.projects, label: "Projects", itemKey: "projects" },
+    { href: routes.blog, label: "Blog", itemKey: "blog" },
+    { separator: true },
+    { href: site.github, label: "GitHub", icon: "github" },
+    { href: `mailto:${site.email}`, label: "Email", icon: "email" },
   ];
 
   const links = navItems
-    .map(([href, label, itemKey = ""]) => {
+    .map(({ href, icon, itemKey = "", label, separator }) => {
+      if (separator) {
+        return '<span class="nav-separator" aria-hidden="true"></span>';
+      }
+
       const currentAttr = itemKey === current ? ' aria-current="page"' : "";
       const resolvedHref = itemKey ? pageHref(route, href) : href;
-      if (itemKey === "separator") {
-        return `<span class="separator" aria-hidden="true">${label}</span>`;
-      }
-      return `<a href="${resolvedHref}"${currentAttr}${externalAttrs(resolvedHref)}>${label}</a>`;
+      const content = icon === "github"
+        ? `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.64 0 8.13c0 3.59 2.29 6.64 5.47 7.71.4.08.55-.18.55-.39 0-.19-.01-.83-.01-1.51-2.01.38-2.53-.5-2.69-.96-.09-.23-.48-.96-.82-1.15-.28-.15-.68-.53-.01-.54.63-.01 1.08.59 1.23.83.72 1.23 1.87.88 2.33.67.07-.53.28-.88.51-1.08-1.78-.21-3.64-.91-3.64-4.02 0-.89.31-1.62.82-2.19-.08-.21-.36-1.04.08-2.16 0 0 .67-.22 2.2.84A7.42 7.42 0 0 1 8 3.91c.68 0 1.36.09 2 .27 1.53-1.06 2.2-.84 2.2-.84.44 1.12.16 1.95.08 2.16.51.57.82 1.3.82 2.19 0 3.12-1.87 3.81-3.65 4.02.29.25.54.74.54 1.5 0 1.08-.01 1.95-.01 2.22 0 .22.15.47.55.39A8.13 8.13 0 0 0 16 8.13C16 3.64 12.42 0 8 0Z" /></svg><span class="visually-hidden">${label}</span>`
+        : icon === "email"
+          ? `<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M2.25 4.25h13.5v9.5H2.25zM2.75 4.75 9 9.5l6.25-4.75" /></svg><span class="visually-hidden">${label}</span>`
+          : label;
+      const iconClass = icon ? ' class="nav-icon"' : "";
+      const labelAttr = icon ? ` aria-label="${label}"` : "";
+      return `<a${iconClass} href="${resolvedHref}"${labelAttr}${currentAttr}${externalAttrs(resolvedHref)}>${content}</a>`;
     })
     .join("\n          ");
 
-  return `<header class="${variant}">
+  return `<header class="site-header">
         <a class="brand" href="${pageHref(route, routes.home)}" aria-label="${site.author} home">
-          <img src="${assets.mark}" alt="" width="36" height="36" />
+          <img src="${assets.mark}" alt="" width="32" height="32" />
           <span>${site.author}</span>
         </a>
         <nav aria-label="Primary navigation">
@@ -112,10 +136,7 @@ function header({ current, route, variant = "site-header" }) {
 
 function footer() {
   return `<footer class="site-credit">
-        <span class="site-credit-name">made by ${site.author}</span>
-        <span class="site-credit-details">
-          <span class="site-credit-meta">Interface styling uses <a href="https://cs16.samke.me/" target="_blank" rel="noopener noreferrer">cs16.css</a> by Samuel Breznjak.</span>
-        </span>
+        <a href="https://cs16.samke.me/" target="_blank" rel="noopener noreferrer">cs16.css</a>
       </footer>`;
 }
 
@@ -163,14 +184,8 @@ function renderComments(post) {
         <div class="comments-titlebar">
           <h2 id="comments-title-${post.slug}">match chat</h2>
           <dl class="comments-scoreboard" aria-label="Comment thread details">
-            <div>
-              <dt>map</dt>
-              <dd>${mapName}</dd>
-            </div>
-            <div>
-              <dt>players</dt>
-              <dd><span data-comment-player-count="${post.slug}">0</span>/16</dd>
-            </div>
+            <div><dt>map</dt><dd>${mapName}</dd></div>
+            <div><dt>players</dt><dd><span data-comment-player-count="${post.slug}">0</span>/16</dd></div>
           </dl>
         </div>
         <div class="comments-body">
@@ -179,14 +194,13 @@ function renderComments(post) {
       </section>`;
 }
 
-function document({ bodyClass = "", content, description, mainClass, title, current, route, headerVariant, ogDescription, ogTitle }) {
-  const bodyAttr = bodyClass ? ` class="${bodyClass}"` : "";
+function document({ content, description, mainClass, title, current, route, ogDescription, ogTitle }) {
   return `<!doctype html>
 <html lang="en">
   ${head({ description, title, ogDescription, ogTitle })}
-  <body${bodyAttr}>
+  <body>
     <main class="${mainClass}">
-      ${header({ current, route, variant: headerVariant })}
+      ${header({ current, route })}
 
 ${indent(content, 6)}
 
@@ -198,87 +212,39 @@ ${indent(content, 6)}
 }
 
 function renderHome() {
-  const latestPost = sortedPosts[0];
   const route = routes.home;
-  const statusRows = home.status
+  const writingRows = sortedPosts
+    .slice(0, 3)
     .map(
-      (item) => `<div>
-                <dt>${item.label}</dt>
-                <dd>${item.value}</dd>
-              </div>`,
+      (post) => `<article class="post-row">
+          <time datetime="${post.date}">${post.displayDate}</time>
+          <div>
+            <h2><a href="${pageHref(route, routes.post(post.slug))}">${post.title}</a></h2>
+            <p>${post.homeExcerpt ?? post.excerpt}</p>
+          </div>
+        </article>`,
     )
-    .join("\n              ");
+    .join("\n        ");
 
-  const about = home.about.map((paragraph) => `<p>${paragraph}</p>`).join("\n          ");
-  const tags = home.tags.map((tag) => `<li>${tag}</li>`).join("\n              ");
-  const actions = home.actions
-    .map((action) => `<a class="cs-btn" href="${pageHref(route, action.href)}">${action.label}</a>`)
-    .join("\n            ");
-
-  const content = `<section class="hero" aria-labelledby="intro-title">
-        <div>
+  const content = `<section class="intro" aria-labelledby="intro-title">
+        <div class="intro-copy">
           <p class="eyebrow">${home.eyebrow}</p>
           <h1 id="intro-title">${home.title}</h1>
-          <p class="lede">${home.lede} <span class="professional-callout">${home.professionalPrompt}</span></p>
-          <div class="actions" aria-label="Contact and reading links">
-            ${actions}
-          </div>
+          <p>${home.introduction}</p>
         </div>
-        <div class="home-side">
-          <figure class="headshot-panel">
-            <img src="${assets.headshot}" alt="${site.author} composited over a Counter-Strike office map" width="900" height="900" />
-          </figure>
-          <div class="server-strip" aria-label="Current server">
-            <span><strong>map</strong> de_culver_city</span>
-            <span><strong>players</strong> 1/10</span>
-            <span><strong>clock</strong> <time id="home-clock" datetime="">loading</time></span>
-          </div>
-          <aside class="status-panel" aria-label="Current status">
-            <div class="panel-title">status</div>
-            <dl>
-              ${statusRows}
-            </dl>
-          </aside>
-        </div>
+        <figure class="portrait">
+          <img src="${assets.headshot}" alt="Kenny Levu composited over the office map from Counter-Strike" width="900" height="900" />
+        </figure>
       </section>
 
-      <hr class="cs-hr" />
-
-      <section class="about-grid" aria-labelledby="about-title">
-        <div class="about-copy">
-          <h2 id="about-title">About</h2>
-          ${about}
-        </div>
-        <div class="tag-panel">
-          <section class="mini-section" aria-labelledby="credits-title">
-            <h2 id="credits-title">Attributions</h2>
-            <p class="credit-copy">${home.credits}</p>
-          </section>
-
-          <section class="mini-section" aria-labelledby="tags-title">
-            <h2 id="tags-title">Tags</h2>
-            <ul class="tag-list" aria-label="Personal interests">
-              ${tags}
-            </ul>
-          </section>
-        </div>
-      </section>
-
-      <section class="log" aria-labelledby="log-title">
+      <section class="index-section" aria-labelledby="writing-title">
         <div class="section-heading">
-          <h2 id="log-title">Latest</h2>
+          <p class="section-label">01</p>
+          <h2 id="writing-title">Writing</h2>
           <a href="${pageHref(route, routes.blog)}">All posts</a>
         </div>
-        <article class="post-row">
-          <time datetime="${latestPost.date}">${latestPost.displayDate}</time>
-          <div>
-            <h3><a href="${pageHref(route, routes.post(latestPost.slug))}">${latestPost.title}</a></h3>
-            <p>${latestPost.homeExcerpt ?? latestPost.excerpt}</p>
-          </div>
-        </article>
-      </section>
-
-      <script type="module" src="/assets/home-clock.js"></script>`;
+        ${writingRows}
+      </section>`;
 
   return document({
     content,
@@ -288,8 +254,40 @@ function renderHome() {
     route,
     title: site.title,
     ogTitle: site.title,
-    ogDescription:
-      "Notes, projects, games, systems, martial arts, and the things Kenny is learning.",
+    ogDescription: site.description,
+  });
+}
+
+function renderProjectsIndex() {
+  const route = routes.projects;
+  const projectRows = projects
+    .map(
+      (project) => `<article class="project-row">
+          <div class="row-meta">${project.meta}</div>
+          <div>
+            <h2><a href="${project.href}" target="_blank" rel="noopener noreferrer">${project.title}</a></h2>
+            <p>${project.description}</p>
+            <a class="source-link" href="${project.href}" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>`,
+    )
+    .join("\n        ");
+
+  const content = `<header class="page-head">
+        <p class="eyebrow">projects</p>
+      </header>
+
+      <section class="project-list" aria-label="Projects">
+        ${projectRows}
+      </section>`;
+
+  return document({
+    content,
+    current: "projects",
+    description: `Projects by ${site.author}.`,
+    mainClass: "shell shell-narrow",
+    route,
+    title: `Projects / ${site.author}`,
   });
 }
 
@@ -307,9 +305,11 @@ function renderBlogIndex() {
     )
     .join("\n        ");
 
-  const content = `
+  const content = `<header class="page-head">
+        <p class="eyebrow">writing</p>
+      </header>
 
-      <section class="log" aria-label="Posts">
+      <section class="post-list" aria-label="Posts">
         ${postRows}
       </section>`;
 
@@ -323,8 +323,9 @@ function renderBlogIndex() {
   });
 }
 
-async function renderPost(post, { route = routes.post(post.slug) } = {}) {
-  const body = await readFile(pagePath(post.body), "utf8");
+async function renderPost(post) {
+  const route = routes.post(post.slug);
+  const body = await readFile(sourcePath(post.body), "utf8");
   const content = `<article class="article">
         <a class="back-link" href="${pageHref(route, routes.blog)}">Back to blog</a>
         <header>
@@ -348,121 +349,31 @@ ${indent(body, 10)}
   });
 }
 
-function renderProfile({ route = routes.profile } = {}) {
-  const meta = profile.player.meta.map((item) => `<span>${item}</span>`).join("\n              ");
-  const notes = profile.notes.map((item) => `<p>${item}</p>`).join("\n                ");
-  const missions = profile.missions
-    .map((mission) => {
-      const status = mission.status.replace('href="blog/"', `href="${pageHref(route, routes.blog)}"`);
-      return `<details class="server-row mission-row">
-                  <summary>
-                    <span>${mission.role}</span>
-                    <span>${mission.mission}</span>
-                    <span>${mission.date}</span>
-                    <span>${status}</span>
-                  </summary>
-                  <p>${mission.details}</p>
-                </details>`;
-    })
-    .join("\n                ");
-  const servers = profile.servers
-    .map(
-      (server) => `<a href="${pageHref(route, server.href)}"${externalAttrs(server.href)} class="server-row">
-                  <span>${server.name}</span>
-                  <span>${server.map}</span>
-                  <span>${server.description}</span>
-                  <span>${server.ping}</span>
-                </a>`,
-    )
-    .join("\n                ");
-
-  const content = `<section class="cs-window" aria-labelledby="profile-title">
-        <div class="cs-window-title">
-          <span class="window-icon" aria-hidden="true"></span>
-          <span id="profile-title">Player Profile</span>
-          <button class="cs-btn close" aria-label="Close profile"></button>
-        </div>
-
-        <div class="cs-window-body">
-          <aside class="player-card" aria-label="Player summary">
-            <img src="${assets.radar}" alt="" class="radar" />
-            <h1>${profile.player.name}</h1>
-            <p>${profile.player.summary}</p>
-            <div class="player-meta">
-              ${meta}
-            </div>
-          </aside>
-
-          <section class="cs-tabs draft-tabs" aria-label="Profile tabs">
-            <input class="radiotab" name="tabs" tabindex="1" type="radio" id="tab-profile" checked="checked" />
-            <label class="label" for="tab-profile">Profile</label>
-            <div class="panel" tabindex="1">
-              <section class="menu-panel profile-notes">
-                <h2>Player notes</h2>
-                ${notes}
-              </section>
-            </div>
-
-            <input class="radiotab" tabindex="1" name="tabs" type="radio" id="tab-match-history" />
-            <label class="label" for="tab-match-history">Match History</label>
-            <div class="panel" tabindex="1">
-              <div class="server-list" aria-label="Experience list">
-                <div class="server-head">
-                  <span>Role</span>
-                  <span>Mission</span>
-                  <span>Date</span>
-                  <span>Status</span>
-                </div>
-                ${missions}
-              </div>
-            </div>
-
-            <input class="radiotab" tabindex="1" name="tabs" type="radio" id="tab-servers" />
-            <label class="label" for="tab-servers">Servers</label>
-            <div class="panel" tabindex="1">
-              <div class="server-list link-list" aria-label="Links">
-                <div class="server-head">
-                  <span>Server</span>
-                  <span>Map</span>
-                  <span>Description</span>
-                  <span>Ping</span>
-                </div>
-                ${servers}
-              </div>
-            </div>
-          </section>
-        </div>
-
-        <footer class="cs-window-footer">
-          <a class="cs-btn" href="${site.linkedIn}" target="_blank" rel="noopener noreferrer">Request resume</a>
-          <a class="cs-btn" href="${pageHref(route, routes.blog)}">Open blog</a>
-        </footer>
-      </section>`;
-
-  return document({
-    bodyClass: "draft-body",
-    content,
-    current: "profile",
-    description: profile.player.summary,
-    headerVariant: "draft-topbar",
-    mainClass: "cs-draft-shell",
-    route,
-    title: `Profile / ${site.author}`,
-  });
-}
-
 async function writePage(path, content) {
-  const destination = pagePath(path);
+  const destination = outputPath(path);
   await mkdir(dirname(destination), { recursive: true });
   await writeFile(destination, content);
 }
 
+async function copyPublicFile(source, destination) {
+  const target = outputPath(destination);
+  await mkdir(dirname(target), { recursive: true });
+  await copyFile(sourcePath(source), target);
+}
+
+await rm(outputRoot, { recursive: true, force: true });
+await mkdir(outputRoot, { recursive: true });
+
+for (const [source, destination] of publicFiles) {
+  await copyPublicFile(source, destination);
+}
+
 await writePage("index.html", renderHome());
-await writePage("profile/index.html", renderProfile());
+await writePage("projects/index.html", renderProjectsIndex());
 await writePage("blog/index.html", renderBlogIndex());
 
 for (const post of sortedPosts) {
-  await writePage(`blog/${post.slug}/index.html`, await renderPost(post, { route: routes.post(post.slug) }));
+  await writePage(`blog/${post.slug}/index.html`, await renderPost(post));
 }
 
-console.log(`Built ${3 + sortedPosts.length} pages.`);
+console.log(`Built ${3 + sortedPosts.length} pages in dist/.`);

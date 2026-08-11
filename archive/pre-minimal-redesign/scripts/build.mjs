@@ -1,0 +1,468 @@
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, join, posix } from "node:path";
+import { fileURLToPath } from "node:url";
+import { comments, home, posts, profile, site } from "../src/site-data.mjs";
+
+const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+const sortedPosts = [...posts].sort((a, b) => b.date.localeCompare(a.date));
+const routes = {
+  home: "/",
+  profile: "/profile/",
+  blog: "/blog/",
+  post: (slug) => `/blog/${slug}/`,
+};
+const assets = {
+  mark: "/assets/mark.svg",
+  cs16: "/assets/cs16.min.css",
+  styles: "/styles.css",
+  headshot: "/assets/profile-office.jpg",
+  radar: "/assets/radar.svg",
+};
+
+function pagePath(path) {
+  return join(projectRoot, path);
+}
+
+function indent(value, spaces) {
+  const prefix = " ".repeat(spaces);
+  return value
+    .trim()
+    .split("\n")
+    .map((line) => `${prefix}${line}`)
+    .join("\n");
+}
+
+function externalAttrs(href) {
+  return href.startsWith("http")
+    ? ' target="_blank" rel="noopener noreferrer"'
+    : "";
+}
+
+function relativeUrl(fromRoute, toRoute) {
+  if (toRoute.startsWith("http") || toRoute.startsWith("#")) return toRoute;
+  const fromDir = fromRoute.endsWith("/") ? fromRoute : posix.dirname(fromRoute);
+  const target = toRoute.endsWith("/") ? `${toRoute}index.html` : toRoute;
+  let relative = posix.relative(fromDir, target);
+
+  if (!relative) return "./";
+  if (relative === "index.html") return "./";
+  if (relative.endsWith("/index.html")) relative = relative.slice(0, -"index.html".length);
+  return relative.startsWith(".") ? relative : `./${relative}`;
+}
+
+function pageHref(fromRoute, toRoute) {
+  return relativeUrl(fromRoute, toRoute);
+}
+
+function head({ description, title, ogDescription, ogTitle }) {
+  const og = ogTitle
+    ? `
+    <meta property="og:title" content="${ogTitle}" />
+    <meta
+      property="og:description"
+      content="${ogDescription}"
+    />
+    <meta property="og:type" content="website" />`
+    : "";
+
+  return `<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="${description}" />${og}
+    <title>${title}</title>
+    <link rel="icon" href="${assets.mark}" type="image/svg+xml" />
+    <link rel="stylesheet" href="${assets.cs16}" />
+    <link rel="stylesheet" href="${assets.styles}" />
+  </head>`;
+}
+
+function header({ current, route, variant = "site-header" }) {
+  const navItems = [
+    [routes.home, "Home", "home"],
+    [routes.profile, "Profile", "profile"],
+    [routes.blog, "Blog", "blog"],
+    ["", "|", "separator"],
+    [site.linkedIn, "LinkedIn"],
+    [site.X, "X"],
+    [site.github, "GitHub"],
+    [`https://mail.google.com/mail/?view=cm&fs=1&to=${site.email}`, "Email"],
+  ];
+
+  const links = navItems
+    .map(([href, label, itemKey = ""]) => {
+      const currentAttr = itemKey === current ? ' aria-current="page"' : "";
+      const resolvedHref = itemKey ? pageHref(route, href) : href;
+      if (itemKey === "separator") {
+        return `<span class="separator" aria-hidden="true">${label}</span>`;
+      }
+      return `<a href="${resolvedHref}"${currentAttr}${externalAttrs(resolvedHref)}>${label}</a>`;
+    })
+    .join("\n          ");
+
+  return `<header class="${variant}">
+        <a class="brand" href="${pageHref(route, routes.home)}" aria-label="${site.author} home">
+          <img src="${assets.mark}" alt="" width="36" height="36" />
+          <span>${site.author}</span>
+        </a>
+        <nav aria-label="Primary navigation">
+          ${links}
+        </nav>
+      </header>`;
+}
+
+function footer() {
+  return `<footer class="site-credit">
+        <span class="site-credit-name">made by ${site.author}</span>
+        <span class="site-credit-details">
+          <span class="site-credit-meta">Interface styling uses <a href="https://cs16.samke.me/" target="_blank" rel="noopener noreferrer">cs16.css</a> by Samuel Breznjak.</span>
+        </span>
+      </footer>`;
+}
+
+function renderComments(post) {
+  if (!comments.enabled || comments.provider !== "giscus") return "";
+
+  const isConfigured = Boolean(comments.repoId && comments.categoryId);
+  const mapName = post.map ?? `de_${post.slug.replaceAll("-", "_")}`;
+  const commentFrame = isConfigured
+    ? `<script
+            src="https://giscus.app/client.js"
+            data-repo="${comments.repo}"
+            data-repo-id="${comments.repoId}"
+            data-category="${comments.category}"
+            data-category-id="${comments.categoryId}"
+            data-mapping="${comments.mapping}"
+            data-strict="${comments.strict}"
+            data-reactions-enabled="${comments.reactionsEnabled}"
+            data-emit-metadata="${comments.emitMetadata}"
+            data-input-position="${comments.inputPosition}"
+            data-theme="${comments.theme}"
+            data-lang="${comments.lang}"
+            crossorigin="anonymous"
+            async>
+          </script>
+          <script>
+            window.addEventListener("message", (event) => {
+              if (event.origin !== "https://giscus.app") return;
+              if (!event.data || !event.data.giscus) return;
+
+              const total = event.data.giscus.discussion?.totalCommentCount;
+              if (!Number.isInteger(total)) return;
+
+              document.querySelectorAll("[data-comment-player-count='${post.slug}']")
+                .forEach((element) => {
+                  element.textContent = String(total);
+                });
+            });
+          </script>`
+    : `<p class="comments-setup">
+            Enable GitHub Discussions, create a "${comments.category}" category, then add its Giscus category ID in site data.
+          </p>`;
+
+  return `<section class="comments-panel" aria-labelledby="comments-title-${post.slug}">
+        <div class="comments-titlebar">
+          <h2 id="comments-title-${post.slug}">match chat</h2>
+          <dl class="comments-scoreboard" aria-label="Comment thread details">
+            <div>
+              <dt>map</dt>
+              <dd>${mapName}</dd>
+            </div>
+            <div>
+              <dt>players</dt>
+              <dd><span data-comment-player-count="${post.slug}">0</span>/16</dd>
+            </div>
+          </dl>
+        </div>
+        <div class="comments-body">
+          ${commentFrame}
+        </div>
+      </section>`;
+}
+
+function document({ bodyClass = "", content, description, mainClass, title, current, route, headerVariant, ogDescription, ogTitle }) {
+  const bodyAttr = bodyClass ? ` class="${bodyClass}"` : "";
+  return `<!doctype html>
+<html lang="en">
+  ${head({ description, title, ogDescription, ogTitle })}
+  <body${bodyAttr}>
+    <main class="${mainClass}">
+      ${header({ current, route, variant: headerVariant })}
+
+${indent(content, 6)}
+
+      ${footer()}
+    </main>
+  </body>
+</html>
+`;
+}
+
+function renderHome() {
+  const latestPost = sortedPosts[0];
+  const route = routes.home;
+  const statusRows = home.status
+    .map(
+      (item) => `<div>
+                <dt>${item.label}</dt>
+                <dd>${item.value}</dd>
+              </div>`,
+    )
+    .join("\n              ");
+
+  const about = home.about.map((paragraph) => `<p>${paragraph}</p>`).join("\n          ");
+  const tags = home.tags.map((tag) => `<li>${tag}</li>`).join("\n              ");
+  const actions = home.actions
+    .map((action) => `<a class="cs-btn" href="${pageHref(route, action.href)}">${action.label}</a>`)
+    .join("\n            ");
+
+  const content = `<section class="hero" aria-labelledby="intro-title">
+        <div>
+          <p class="eyebrow">${home.eyebrow}</p>
+          <h1 id="intro-title">${home.title}</h1>
+          <p class="lede">${home.lede} <span class="professional-callout">${home.professionalPrompt}</span></p>
+          <div class="actions" aria-label="Contact and reading links">
+            ${actions}
+          </div>
+        </div>
+        <div class="home-side">
+          <figure class="headshot-panel">
+            <img src="${assets.headshot}" alt="${site.author} composited over a Counter-Strike office map" width="900" height="900" />
+          </figure>
+          <div class="server-strip" aria-label="Current server">
+            <span><strong>map</strong> de_culver_city</span>
+            <span><strong>players</strong> 1/10</span>
+            <span><strong>clock</strong> <time id="home-clock" datetime="">loading</time></span>
+          </div>
+          <aside class="status-panel" aria-label="Current status">
+            <div class="panel-title">status</div>
+            <dl>
+              ${statusRows}
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <hr class="cs-hr" />
+
+      <section class="about-grid" aria-labelledby="about-title">
+        <div class="about-copy">
+          <h2 id="about-title">About</h2>
+          ${about}
+        </div>
+        <div class="tag-panel">
+          <section class="mini-section" aria-labelledby="credits-title">
+            <h2 id="credits-title">Attributions</h2>
+            <p class="credit-copy">${home.credits}</p>
+          </section>
+
+          <section class="mini-section" aria-labelledby="tags-title">
+            <h2 id="tags-title">Tags</h2>
+            <ul class="tag-list" aria-label="Personal interests">
+              ${tags}
+            </ul>
+          </section>
+        </div>
+      </section>
+
+      <section class="log" aria-labelledby="log-title">
+        <div class="section-heading">
+          <h2 id="log-title">Latest</h2>
+          <a href="${pageHref(route, routes.blog)}">All posts</a>
+        </div>
+        <article class="post-row">
+          <time datetime="${latestPost.date}">${latestPost.displayDate}</time>
+          <div>
+            <h3><a href="${pageHref(route, routes.post(latestPost.slug))}">${latestPost.title}</a></h3>
+            <p>${latestPost.homeExcerpt ?? latestPost.excerpt}</p>
+          </div>
+        </article>
+      </section>
+
+      <script type="module" src="/assets/home-clock.js"></script>`;
+
+  return document({
+    content,
+    current: "home",
+    description: site.description,
+    mainClass: "shell",
+    route,
+    title: site.title,
+    ogTitle: site.title,
+    ogDescription:
+      "Notes, projects, games, systems, martial arts, and the things Kenny is learning.",
+  });
+}
+
+function renderBlogIndex() {
+  const route = routes.blog;
+  const postRows = sortedPosts
+    .map(
+      (post) => `<article class="post-row">
+          <time datetime="${post.date}">${post.displayDate}</time>
+          <div>
+            <h2><a href="${pageHref(route, routes.post(post.slug))}">${post.title}</a></h2>
+            <p>${post.excerpt}</p>
+          </div>
+        </article>`,
+    )
+    .join("\n        ");
+
+  const content = `
+
+      <section class="log" aria-label="Posts">
+        ${postRows}
+      </section>`;
+
+  return document({
+    content,
+    current: "blog",
+    description: site.blogDescription,
+    mainClass: "shell shell-narrow",
+    route,
+    title: `Blog / ${site.author}`,
+  });
+}
+
+async function renderPost(post, { route = routes.post(post.slug) } = {}) {
+  const body = await readFile(pagePath(post.body), "utf8");
+  const content = `<article class="article">
+        <a class="back-link" href="${pageHref(route, routes.blog)}">Back to blog</a>
+        <header>
+          <p class="eyebrow">${post.displayDate}</p>
+          <h1>${post.title}</h1>
+        </header>
+        <div class="article-body">
+${indent(body, 10)}
+        </div>
+      </article>
+
+      ${renderComments(post)}`;
+
+  return document({
+    content,
+    current: "blog",
+    description: post.description,
+    mainClass: "shell shell-article",
+    route,
+    title: `${post.title} / ${site.author}`,
+  });
+}
+
+function renderProfile({ route = routes.profile } = {}) {
+  const meta = profile.player.meta.map((item) => `<span>${item}</span>`).join("\n              ");
+  const notes = profile.notes.map((item) => `<p>${item}</p>`).join("\n                ");
+  const missions = profile.missions
+    .map((mission) => {
+      const status = mission.status.replace('href="blog/"', `href="${pageHref(route, routes.blog)}"`);
+      return `<details class="server-row mission-row">
+                  <summary>
+                    <span>${mission.role}</span>
+                    <span>${mission.mission}</span>
+                    <span>${mission.date}</span>
+                    <span>${status}</span>
+                  </summary>
+                  <p>${mission.details}</p>
+                </details>`;
+    })
+    .join("\n                ");
+  const servers = profile.servers
+    .map(
+      (server) => `<a href="${pageHref(route, server.href)}"${externalAttrs(server.href)} class="server-row">
+                  <span>${server.name}</span>
+                  <span>${server.map}</span>
+                  <span>${server.description}</span>
+                  <span>${server.ping}</span>
+                </a>`,
+    )
+    .join("\n                ");
+
+  const content = `<section class="cs-window" aria-labelledby="profile-title">
+        <div class="cs-window-title">
+          <span class="window-icon" aria-hidden="true"></span>
+          <span id="profile-title">Player Profile</span>
+          <button class="cs-btn close" aria-label="Close profile"></button>
+        </div>
+
+        <div class="cs-window-body">
+          <aside class="player-card" aria-label="Player summary">
+            <img src="${assets.radar}" alt="" class="radar" />
+            <h1>${profile.player.name}</h1>
+            <p>${profile.player.summary}</p>
+            <div class="player-meta">
+              ${meta}
+            </div>
+          </aside>
+
+          <section class="cs-tabs draft-tabs" aria-label="Profile tabs">
+            <input class="radiotab" name="tabs" tabindex="1" type="radio" id="tab-profile" checked="checked" />
+            <label class="label" for="tab-profile">Profile</label>
+            <div class="panel" tabindex="1">
+              <section class="menu-panel profile-notes">
+                <h2>Player notes</h2>
+                ${notes}
+              </section>
+            </div>
+
+            <input class="radiotab" tabindex="1" name="tabs" type="radio" id="tab-match-history" />
+            <label class="label" for="tab-match-history">Match History</label>
+            <div class="panel" tabindex="1">
+              <div class="server-list" aria-label="Experience list">
+                <div class="server-head">
+                  <span>Role</span>
+                  <span>Mission</span>
+                  <span>Date</span>
+                  <span>Status</span>
+                </div>
+                ${missions}
+              </div>
+            </div>
+
+            <input class="radiotab" tabindex="1" name="tabs" type="radio" id="tab-servers" />
+            <label class="label" for="tab-servers">Servers</label>
+            <div class="panel" tabindex="1">
+              <div class="server-list link-list" aria-label="Links">
+                <div class="server-head">
+                  <span>Server</span>
+                  <span>Map</span>
+                  <span>Description</span>
+                  <span>Ping</span>
+                </div>
+                ${servers}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <footer class="cs-window-footer">
+          <a class="cs-btn" href="${site.linkedIn}" target="_blank" rel="noopener noreferrer">Request resume</a>
+          <a class="cs-btn" href="${pageHref(route, routes.blog)}">Open blog</a>
+        </footer>
+      </section>`;
+
+  return document({
+    bodyClass: "draft-body",
+    content,
+    current: "profile",
+    description: profile.player.summary,
+    headerVariant: "draft-topbar",
+    mainClass: "cs-draft-shell",
+    route,
+    title: `Profile / ${site.author}`,
+  });
+}
+
+async function writePage(path, content) {
+  const destination = pagePath(path);
+  await mkdir(dirname(destination), { recursive: true });
+  await writeFile(destination, content);
+}
+
+await writePage("index.html", renderHome());
+await writePage("profile/index.html", renderProfile());
+await writePage("blog/index.html", renderBlogIndex());
+
+for (const post of sortedPosts) {
+  await writePage(`blog/${post.slug}/index.html`, await renderPost(post, { route: routes.post(post.slug) }));
+}
+
+console.log(`Built ${3 + sortedPosts.length} pages.`);

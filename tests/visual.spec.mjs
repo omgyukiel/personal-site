@@ -1,9 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 test("home page keeps its visual layout", async ({ page }, testInfo) => {
-  await page.addInitScript(() => {
-    window.__HOME_CLOCK_TEST_VALUE__ = "09:00:00 PDT";
-  });
   await page.goto("/");
 
   await expect(page).toHaveScreenshot(`home-${testInfo.project.name}.png`, {
@@ -28,19 +25,20 @@ test("hello world post keeps its visual layout", async ({ page }, testInfo) => {
   });
 });
 
-test("profile tabs keep their visual layouts", async ({ page }, testInfo) => {
-  await page.goto("/profile/");
-  await expect(page).toHaveScreenshot(`profile-${testInfo.project.name}.png`, {
-    fullPage: true,
-  });
+test("removed profile route returns 404", async ({ request }) => {
+  const response = await request.get("/profile/");
+  expect(response.status()).toBe(404);
+});
 
-  await page.getByText("Match History", { exact: true }).click();
-  await expect(page).toHaveScreenshot(`profile-match-${testInfo.project.name}.png`, {
-    fullPage: true,
-  });
+test("projects index keeps its visual layout", async ({ page }, testInfo) => {
+  await page.goto("/projects/");
 
-  await page.getByText("Servers", { exact: true }).click();
-  await expect(page).toHaveScreenshot(`profile-servers-${testInfo.project.name}.png`, {
+  await expect(page).toHaveScreenshot(`projects-${testInfo.project.name}.png`, {
     fullPage: true,
   });
+});
+
+test("archive is not part of the public site", async ({ request }) => {
+  const response = await request.get("/archive/pre-minimal-redesign/");
+  expect(response.status()).toBe(404);
 });
