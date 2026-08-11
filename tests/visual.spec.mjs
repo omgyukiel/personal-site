@@ -30,6 +30,23 @@ test("removed profile route returns 404", async ({ request }) => {
   expect(response.status()).toBe(404);
 });
 
+test("home page can switch to the Counter-Strike interface", async ({ page }, testInfo) => {
+  await page.goto("/");
+  const toggle = page.locator(".theme-toggle");
+
+  await expect(toggle).toHaveAttribute("aria-label", "Enable Counter-Strike interface mode");
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-site-theme", "cs16");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(page).toHaveScreenshot(`home-cs16-${testInfo.project.name}.png`, {
+    fullPage: true,
+  });
+
+  await page.goto("/blog/");
+  await expect(page.locator("html")).toHaveAttribute("data-site-theme", "cs16");
+  await expect(page.locator(".theme-toggle")).toHaveAttribute("aria-pressed", "true");
+});
+
 test("projects index keeps its visual layout", async ({ page }, testInfo) => {
   await page.goto("/projects/");
 

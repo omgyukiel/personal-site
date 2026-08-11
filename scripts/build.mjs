@@ -101,6 +101,7 @@ function header({ current, route }) {
     { href: routes.blog, label: "Blog", itemKey: "blog" },
     { separator: true },
     { href: site.github, label: "GitHub", icon: "github" },
+    { href: site.linkedIn, label: "LinkedIn", icon: "linkedin" },
     { href: site.discord, label: "Discord", icon: "discord" },
     { href: `mailto:${site.email}`, label: "Email", icon: "email" },
   ];
@@ -115,6 +116,8 @@ function header({ current, route }) {
       const resolvedHref = itemKey ? pageHref(route, href) : href;
       const content = icon === "github"
         ? `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.64 0 8.13c0 3.59 2.29 6.64 5.47 7.71.4.08.55-.18.55-.39 0-.19-.01-.83-.01-1.51-2.01.38-2.53-.5-2.69-.96-.09-.23-.48-.96-.82-1.15-.28-.15-.68-.53-.01-.54.63-.01 1.08.59 1.23.83.72 1.23 1.87.88 2.33.67.07-.53.28-.88.51-1.08-1.78-.21-3.64-.91-3.64-4.02 0-.89.31-1.62.82-2.19-.08-.21-.36-1.04.08-2.16 0 0 .67-.22 2.2.84A7.42 7.42 0 0 1 8 3.91c.68 0 1.36.09 2 .27 1.53-1.06 2.2-.84 2.2-.84.44 1.12.16 1.95.08 2.16.51.57.82 1.3.82 2.19 0 3.12-1.87 3.81-3.65 4.02.29.25.54.74.54 1.5 0 1.08-.01 1.95-.01 2.22 0 .22.15.47.55.39A8.13 8.13 0 0 0 16 8.13C16 3.64 12.42 0 8 0Z" /></svg><span class="visually-hidden">${label}</span>`
+        : icon === "linkedin"
+          ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.3 7.1H1.4V22h3.9V7.1ZM3.4 1C2 1 1 2 1 3.3s1 2.3 2.3 2.3c1.4 0 2.4-1 2.4-2.3S4.7 1 3.4 1ZM23 13.5c0-4.5-2.4-6.6-5.6-6.6-2.6 0-3.7 1.4-4.4 2.4V7.1H9.1V22H13v-7.4c0-2 .4-3.9 2.8-3.9 2.3 0 2.4 2.2 2.4 4V22H22V13.5Z" /></svg><span class="visually-hidden">${label}</span>`
         : icon === "discord"
           ? `<svg viewBox="0 0 20 16" aria-hidden="true"><path d="M16.9 1.4A16 16 0 0 0 13 .2l-.5 1a14.7 14.7 0 0 0-5 0L7 .2a16 16 0 0 0-3.9 1.2C.6 5.1-.1 8.7.2 12.2a15.6 15.6 0 0 0 4.8 2.4l1.2-1.7-1.8-.9.4-.3a11.5 11.5 0 0 0 10.4 0l.4.3-1.8.9 1.2 1.7a15.6 15.6 0 0 0 4.8-2.4c.4-4.1-.7-7.6-2.9-10.8ZM6.6 10.3c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Zm6.8 0c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Z" /></svg><span class="visually-hidden">${label}</span>`
           : icon === "email"
@@ -126,6 +129,9 @@ function header({ current, route }) {
     })
     .join("\n          ");
 
+  const themeToggle = `<span class="nav-separator theme-separator" aria-hidden="true"></span>
+          <button class="theme-toggle" type="button" aria-label="Enable Counter-Strike interface mode" aria-pressed="false" title="Toggle Counter-Strike interface mode"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1v6M10 13v6M1 10h6M13 10h6" /></svg></button>`;
+
   return `<header class="site-header">
         <a class="brand" href="${pageHref(route, routes.home)}" aria-label="${site.author} home">
           <img src="${assets.mark}" alt="" width="32" height="32" />
@@ -133,14 +139,56 @@ function header({ current, route }) {
         </a>
         <nav aria-label="Primary navigation">
           ${links}
+          ${themeToggle}
         </nav>
       </header>`;
 }
 
 function footer() {
   return `<footer class="site-credit">
-        <a href="https://cs16.samke.me/" target="_blank" rel="noopener noreferrer">cs16.css</a>
+        <span>© 2026 ${site.author}</span>
+        <div class="site-credit-links">
+          <a class="footer-contact" href="mailto:${site.email}">Contact</a>
+          <a href="https://cs16.samke.me/" target="_blank" rel="noopener noreferrer">cs16.css</a>
+        </div>
       </footer>`;
+}
+
+function themeScript() {
+  return `<script>
+        (() => {
+          const root = document.documentElement;
+          const toggle = document.querySelector(".theme-toggle");
+          const storageKey = "kenny-site-theme";
+          const legacyStorageKey = "kenny-home-theme";
+
+          const applyTheme = (theme) => {
+            const csMode = theme === "cs16";
+            root.dataset.siteTheme = csMode ? "cs16" : "minimal";
+            toggle.setAttribute("aria-pressed", String(csMode));
+            toggle.setAttribute("aria-label", csMode
+              ? "Enable minimal interface mode"
+              : "Enable Counter-Strike interface mode");
+          };
+
+          let savedTheme = "minimal";
+          try {
+            savedTheme = localStorage.getItem(storageKey)
+              ?? localStorage.getItem(legacyStorageKey)
+              ?? "minimal";
+            localStorage.removeItem(legacyStorageKey);
+          } catch {}
+
+          applyTheme(savedTheme);
+          toggle.addEventListener("click", () => {
+            const nextTheme = root.dataset.siteTheme === "cs16" ? "minimal" : "cs16";
+            applyTheme(nextTheme);
+            try {
+              localStorage.setItem(storageKey, nextTheme);
+            } catch {}
+          });
+        })();
+      </script>`;
 }
 
 function renderComments(post) {
@@ -208,6 +256,7 @@ function document({ content, description, mainClass, title, current, route, ogDe
 ${indent(content, 6)}
 
       ${footer()}
+      ${themeScript()}
     </main>
   </body>
 </html>
@@ -234,12 +283,6 @@ function renderHome() {
           <p class="eyebrow">${home.eyebrow}</p>
           <h1 id="intro-title">${home.title}</h1>
           <p class="intro-text">${home.introduction}</p>
-          <div class="contact-line" aria-label="Contact links">
-            <span>contact</span>
-            <a href="mailto:${site.email}">Email</a>
-            <a href="${site.linkedIn}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a href="${site.discord}" target="_blank" rel="noopener noreferrer">Discord</a>
-          </div>
         </div>
         <figure class="portrait">
           <img src="${assets.headshot}" alt="Kenny Levu composited over the office map from Counter-Strike" width="900" height="900" />

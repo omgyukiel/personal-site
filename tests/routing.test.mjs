@@ -56,11 +56,17 @@ test("generated pages use the expected internal routes and compact navigation", 
     }
 
     assert.doesNotMatch(html, /href="[^\"]*profile\//);
-    assert.doesNotMatch(nav, />LinkedIn<|>X</);
+    assert.doesNotMatch(nav, />X</);
     assert.match(html, /class="nav-separator" aria-hidden="true"/);
     assert.match(html, /class="nav-icon" href="https:\/\/github\.com\/omgyukiel" aria-label="GitHub"/);
+    assert.match(html, new RegExp(`class="nav-icon" href="${site.linkedIn.replaceAll("/", "\\/")}" aria-label="LinkedIn"`));
     assert.match(html, new RegExp(`class="nav-icon" href="${site.discord.replaceAll("/", "\\/")}" aria-label="Discord"`));
     assert.match(html, new RegExp(`class="nav-icon" href="mailto:${site.email}" aria-label="Email"`));
+    assert.match(html, new RegExp(`© 2026 ${site.author}`));
+    assert.match(html, />cs16\.css<\/a>/);
+    assert.match(html, new RegExp(`class="footer-contact" href="mailto:${site.email}"`));
+    assert.match(html, /class="theme-toggle"/);
+    assert.match(html, /kenny-site-theme/);
   }
 });
 
@@ -95,10 +101,8 @@ test("homepage renders only the intro and no more than three newest posts", asyn
 
   assert.doesNotMatch(html, /class="project-row"/);
   assert.doesNotMatch(html, />Projects<\/h2>/);
-  assert.match(html, /class="contact-line" aria-label="Contact links"/);
-  assert.match(html, new RegExp(`href="mailto:${site.email}"`));
-  assert.match(html, new RegExp(site.linkedIn.replaceAll("/", "\\/")));
-  assert.match(html, new RegExp(site.discord.replaceAll("/", "\\/")));
+  assert.doesNotMatch(html, /class="contact-line/);
+  assert.match(html, /class="theme-toggle"/);
 });
 
 test("projects page renders every configured project", async () => {

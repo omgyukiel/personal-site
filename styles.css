@@ -18,6 +18,7 @@
 
 html {
   background: var(--bg);
+  overflow-x: clip;
 }
 
 body {
@@ -86,9 +87,12 @@ h3 {
 }
 
 .shell {
+  display: flex;
+  flex-direction: column;
   width: min(980px, calc(100% - 40px));
+  min-height: 100vh;
   margin: 0 auto;
-  padding: 30px 0 48px;
+  padding: 30px 0 0;
 }
 
 .shell-narrow {
@@ -100,11 +104,22 @@ h3 {
 }
 
 .site-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 8px 0 70px;
+  margin-bottom: 50px;
+  padding: 8px 0 24px;
+}
+
+.site-header::after {
+  position: absolute;
+  bottom: 0;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  border-bottom: 1px solid var(--line);
+  content: "";
 }
 
 .brand {
@@ -158,6 +173,41 @@ nav {
   stroke-width: 1.35;
 }
 
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 29px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  padding: 3px 5px 2px;
+  color: var(--accent-2);
+  cursor: pointer;
+  font-family: ArialPixel, Arial, Helvetica, sans-serif;
+  font-size: 0.72rem;
+  line-height: 1.1;
+}
+
+.theme-toggle svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: square;
+  stroke-width: 1.5;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent-2);
+  color: var(--text);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 4px;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -191,22 +241,6 @@ nav a[aria-current="page"] {
   font-size: 1.08rem;
   line-height: 1.75;
   text-wrap: pretty;
-}
-
-.contact-line {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px 14px;
-  margin-top: 22px;
-  font-size: 0.9rem;
-}
-
-.contact-line > span {
-  color: var(--accent-2);
-  font-family: ArialPixel, Arial, Helvetica, sans-serif;
-  font-size: 0.74rem;
-  text-transform: uppercase;
 }
 
 .eyebrow {
@@ -473,11 +507,81 @@ nav a[aria-current="page"] {
 }
 
 .site-credit {
-  margin-top: 48px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-top: auto;
+  padding: 18px 0 28px;
   color: var(--muted);
   font-size: 0.78rem;
+}
+
+.site-credit::before {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  border-top: 1px solid var(--line);
+  content: "";
+}
+
+.site-credit-links {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+}
+
+.footer-contact {
+  padding: 0;
+}
+
+html[data-site-theme="cs16"] {
+  --bg: #4a5942;
+  --panel: #3e4637;
+  --panel-2: #3e4637;
+  --text: #dedfd6;
+  --muted: #d8ded3;
+  --line: #292c21;
+  --accent: #c4b550;
+  --accent-2: #a0aa95;
+  --shadow: transparent;
+}
+
+html[data-site-theme="cs16"] body {
+  background: var(--bg);
+  font-family: ArialPixel, Arial, Helvetica, sans-serif;
+}
+
+html[data-site-theme="cs16"] .site-header::after,
+html[data-site-theme="cs16"] .site-credit::before {
+  border-color: var(--line);
+  box-shadow: 0 1px 0 #8c9284;
+}
+
+html[data-site-theme="cs16"] .portrait,
+html[data-site-theme="cs16"] .theme-toggle {
+  border: 1px solid;
+  border-color: #8c9284 #292c21 #292c21 #8c9284;
+  background: var(--bg);
+  box-shadow: none;
+  color: #fff;
+}
+
+html[data-site-theme="cs16"] .theme-toggle:active {
+  border-color: #292c21 #8c9284 #8c9284 #292c21;
+}
+
+html[data-site-theme="cs16"] .index-section,
+html[data-site-theme="cs16"] .post-row {
+  border-top-color: #292c21;
+  box-shadow: inset 0 1px 0 rgba(140, 146, 132, 0.55);
+}
+
+html[data-site-theme="cs16"] .intro-text,
+html[data-site-theme="cs16"] .post-row p {
+  color: var(--text);
 }
 
 @media (min-width: 900px) {
@@ -505,7 +609,8 @@ nav a[aria-current="page"] {
     align-items: flex-start;
     flex-direction: column;
     gap: 18px;
-    padding-bottom: 44px;
+    margin-bottom: 34px;
+    padding-bottom: 22px;
   }
 
   nav {
@@ -540,6 +645,10 @@ nav a[aria-current="page"] {
 
   .comments-titlebar h2 {
     min-height: 34px;
+  }
+
+  .site-credit {
+    flex-wrap: wrap;
   }
 
 }
