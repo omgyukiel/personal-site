@@ -3,6 +3,7 @@ export const site = {
   email: "kennylevu1@gmail.com",
   github: "https://github.com/omgyukiel",
   linkedIn: "https://www.linkedin.com/in/kenny-levu/",
+  discord: "https://discord.com/users/1120221068905414717",
   X: "https://x.com/omgyukiel",
   title: "Kenny Levu",
   description:

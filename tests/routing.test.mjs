@@ -9,19 +9,19 @@ const outputRoot = join(projectRoot, "dist");
 const pageExpectations = [
   {
     file: "index.html",
-    hrefs: ["./", "./projects/", "./blog/", "./blog/hello-world/", site.github, `mailto:${site.email}`],
+    hrefs: ["./", "./projects/", "./blog/", "./blog/hello-world/", site.github, site.discord, `mailto:${site.email}`],
   },
   {
     file: "projects/index.html",
-    hrefs: ["../", "./", "../blog/", site.github, `mailto:${site.email}`],
+    hrefs: ["../", "./", "../blog/", site.github, site.discord, `mailto:${site.email}`],
   },
   {
     file: "blog/index.html",
-    hrefs: ["../", "../projects/", "./", "./hello-world/", site.github, `mailto:${site.email}`],
+    hrefs: ["../", "../projects/", "./", "./hello-world/", site.github, site.discord, `mailto:${site.email}`],
   },
   {
     file: "blog/hello-world/index.html",
-    hrefs: ["../../", "../../projects/", "../", site.github, `mailto:${site.email}`],
+    hrefs: ["../../", "../../projects/", "../", site.github, site.discord, `mailto:${site.email}`],
   },
 ];
 
@@ -49,15 +49,17 @@ test("generated pages use the expected internal routes and compact navigation", 
   for (const { file, hrefs: expectedHrefs } of pageExpectations) {
     const html = await readFile(join(outputRoot, file), "utf8");
     const hrefs = extractHrefs(html);
+    const nav = html.match(/<nav[^>]*>[\s\S]*?<\/nav>/)?.[0] ?? "";
 
     for (const expectedHref of expectedHrefs) {
       assert.ok(hrefs.includes(expectedHref), `${file} should include href="${expectedHref}"`);
     }
 
     assert.doesNotMatch(html, /href="[^\"]*profile\//);
-    assert.doesNotMatch(html, />LinkedIn<|>X</);
+    assert.doesNotMatch(nav, />LinkedIn<|>X</);
     assert.match(html, /class="nav-separator" aria-hidden="true"/);
     assert.match(html, /class="nav-icon" href="https:\/\/github\.com\/omgyukiel" aria-label="GitHub"/);
+    assert.match(html, new RegExp(`class="nav-icon" href="${site.discord.replaceAll("/", "\\/")}" aria-label="Discord"`));
     assert.match(html, new RegExp(`class="nav-icon" href="mailto:${site.email}" aria-label="Email"`));
   }
 });
@@ -93,6 +95,10 @@ test("homepage renders only the intro and no more than three newest posts", asyn
 
   assert.doesNotMatch(html, /class="project-row"/);
   assert.doesNotMatch(html, />Projects<\/h2>/);
+  assert.match(html, /class="contact-line" aria-label="Contact links"/);
+  assert.match(html, new RegExp(`href="mailto:${site.email}"`));
+  assert.match(html, new RegExp(site.linkedIn.replaceAll("/", "\\/")));
+  assert.match(html, new RegExp(site.discord.replaceAll("/", "\\/")));
 });
 
 test("projects page renders every configured project", async () => {

@@ -184,13 +184,29 @@ nav a[aria-current="page"] {
   padding: 20px 0 76px;
 }
 
-.intro-copy > p:last-child {
+.intro-text {
   max-width: 62ch;
   margin-top: 24px;
   color: var(--muted);
   font-size: 1.08rem;
   line-height: 1.75;
   text-wrap: pretty;
+}
+
+.contact-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 14px;
+  margin-top: 22px;
+  font-size: 0.9rem;
+}
+
+.contact-line > span {
+  color: var(--accent-2);
+  font-family: ArialPixel, Arial, Helvetica, sans-serif;
+  font-size: 0.74rem;
+  text-transform: uppercase;
 }
 
 .eyebrow {
