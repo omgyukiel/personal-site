@@ -9,19 +9,19 @@ const outputRoot = join(projectRoot, "dist");
 const pageExpectations = [
   {
     file: "index.html",
-    hrefs: ["./", "./projects/", "./blog/", "./blog/hello-world/", site.github, site.discord, `mailto:${site.email}`],
+    hrefs: ["./", "./projects/", "./blog/", "./blog/hello-world/", site.github, site.X, `mailto:${site.email}`],
   },
   {
     file: "projects/index.html",
-    hrefs: ["../", "./", "../blog/", site.github, site.discord, `mailto:${site.email}`],
+    hrefs: ["../", "./", "../blog/", site.github, site.X, `mailto:${site.email}`],
   },
   {
     file: "blog/index.html",
-    hrefs: ["../", "../projects/", "./", "./hello-world/", site.github, site.discord, `mailto:${site.email}`],
+    hrefs: ["../", "../projects/", "./", "./hello-world/", site.github, site.X, `mailto:${site.email}`],
   },
   {
     file: "blog/hello-world/index.html",
-    hrefs: ["../../", "../../projects/", "../", site.github, site.discord, `mailto:${site.email}`],
+    hrefs: ["../../", "../../projects/", "../", site.github, site.X, `mailto:${site.email}`],
   },
 ];
 
@@ -56,11 +56,12 @@ test("generated pages use the expected internal routes and compact navigation", 
     }
 
     assert.doesNotMatch(html, /href="[^\"]*profile\//);
-    assert.doesNotMatch(nav, />X</);
     assert.match(html, /class="nav-separator" aria-hidden="true"/);
+    assert.match(html, /class="brand"[^>]*>[\s\S]*?<span>About Me<\/span>/);
     assert.match(html, /class="nav-icon" href="https:\/\/github\.com\/omgyukiel" aria-label="GitHub"/);
     assert.match(html, new RegExp(`class="nav-icon" href="${site.linkedIn.replaceAll("/", "\\/")}" aria-label="LinkedIn"`));
-    assert.match(html, new RegExp(`class="nav-icon" href="${site.discord.replaceAll("/", "\\/")}" aria-label="Discord"`));
+    assert.match(html, new RegExp(`class="nav-icon" href="${site.X.replaceAll("/", "\\/")}" aria-label="X"`));
+    assert.doesNotMatch(nav, /aria-label="Discord"/);
     assert.match(html, new RegExp(`class="nav-icon" href="mailto:${site.email}" aria-label="Email"`));
     assert.match(html, new RegExp(`© 2026 ${site.author}`));
     assert.match(html, />cs16\.css<\/a>/);
